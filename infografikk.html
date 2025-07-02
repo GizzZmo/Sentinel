@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="no" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Sentinel | Interaktiv Oversikt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Tech Neutral -->
+    <!-- Application Structure Plan: Appen er strukturert i tematiske, rullbare seksjoner for en logisk brukerflyt: 1. Introduksjon (Filosofi & Direktiv 7A) for å etablere kontekst. 2. Interaktiv protokollutforsker (visuell representasjon) for å engasjere brukeren og forklare kjernekomponentene. 3. En dynamisk risikokalkulator med et diagram for å gjøre det abstrakte poengsystemet konkret. 4. En visualisering av datapipelinen for å vise informasjonsflyten. 5. Etiske retningslinjer og tilgangsnivåer organisert i faner for klarhet. 6. En interaktiv scenariovelger for å demonstrere systemet i praksis. Denne strukturen prioriterer utforskning og forståelse over en lineær gjengivelse av rapporten. -->
+    <!-- Visualization & Content Choices: 
+        - Filosofi -> Informer -> Tekstblokker -> Statisk -> For å gi grunnleggende kontekst.
+        - Protokoller -> Organiser/Informer -> Interaktivt HTML/CSS-diagram -> Klikk for detaljer -> Viser systemarkitektur visuelt.
+        - Risikobidrag -> Sammenlign/Informer -> Dynamisk stolpediagram (Chart.js) -> Velg hendelser for å oppdatere diagram -> Gjør poengsystemet håndgripelig og interaktivt.
+        - Datapipeline -> Vis Endring/Organiser -> Animerte HTML/CSS-elementer -> Sekvensiell animasjon -> Viser prosessflyt mer effektivt enn statisk tekst.
+        - Regler/Roller -> Informer/Sammenlign -> HTML-faner og kort -> Klikk for å bytte fane -> Organiserer tett relatert informasjon på en oversiktlig måte.
+        - Scenarier -> Vis Endring/Informer -> Dynamisk tekstlogg -> Velg fra nedtrekksmeny -> Simulerer en sanntids-hendelseslogg for økt engasjement.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            color: #1e293b; /* slate-800 */
+        }
+        .nav-link {
+            transition: color 0.2s, border-color 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0ea5e9; /* sky-500 */
+            border-bottom-color: #0ea5e9;
+        }
+        .section-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .section-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .protocol-node {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .protocol-node.active {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.5); /* sky-500 */
+            border-color: #0ea5e9;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+         @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .threat-level-indicator {
+            transition: all 0.3s ease-in-out;
+        }
+        .pipeline-item {
+            opacity: 0.3;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        .pipeline-item.active {
+            opacity: 1;
+            transform: scale(1.03);
+        }
+        .pipeline-arrow {
+            opacity: 0.3;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .pipeline-arrow.active {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-slate-900">Project Sentinel</h1>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#philosophy" class="nav-link text-slate-600 font-medium pb-1">Filosofi</a>
+                <a href="#protocols" class="nav-link text-slate-600 font-medium pb-1">Protokoller</a>
+                <a href="#risk" class="nav-link text-slate-600 font-medium pb-1">Risikoanalyse</a>
+                <a href="#rules" class="nav-link text-slate-600 font-medium pb-1">Retningslinjer</a>
+                <a href="#scenarios" class="nav-link text-slate-600 font-medium pb-1">Scenarier</a>
+            </div>
+            <div class="md:hidden">
+                <select id="mobile-nav" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full p-2.5">
+                    <option value="#philosophy">Filosofi</option>
+                    <option value="#protocols">Protokoller</option>
+                    <option value="#risk">Risikoanalyse</option>
+                    <option value="#rules">Retningslinjer</option>
+                    <option value="#scenarios">Scenarier</option>
+                </select>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12 space-y-24">
+
+        <section id="philosophy">
+            <div class="text-center max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold text-slate-900 mb-4">Systemoversikt og Filosofi</h2>
+                <p class="text-lg text-slate-600 mb-8">
+                    Project Sentinel er ikke designet for å erstatte menneskelig dømmekraft, men for å forsterke den. Ved å analysere komplekse dataflyter gir systemet operatøren en dypere situasjonsforståelse for å muliggjøre mer informerte, effektive og de-eskalerende beslutninger.
+                </p>
+            </div>
+            <div class="section-card p-8 max-w-5xl mx-auto">
+                <h3 class="text-2xl font-bold text-sky-700 mb-4 flex items-center"><span class="text-3xl mr-3">📜</span>Direktiv 7A: Menneskelig Myndiggjøring</h3>
+                <p class="text-slate-600 mb-6">All bruk av Project Sentinel er underlagt Direktiv 7A. Dette direktivet danner det etiske fundamentet for systemets operasjon og sikrer at teknologien tjener mennesket, ikke omvendt.</p>
+                <div class="grid md:grid-cols-3 gap-6 text-center">
+                    <div class="bg-slate-50 p-6 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2 text-slate-800">Rådgiver, Ikke Sjef</h4>
+                        <p class="text-sm text-slate-600">AI-en gir analyser og anbefalinger. Den endelige beslutningen ligger alltid hos den autoriserte operatøren.</p>
+                    </div>
+                    <div class="bg-slate-50 p-6 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2 text-slate-800">Fokus på De-eskalering</h4>
+                        <p class="text-sm text-slate-600">Hovedmålet er å identifisere tidlige tegn på uro for å muliggjøre proaktive, fredelige tiltak.</p>
+                    </div>
+                    <div class="bg-slate-50 p-6 rounded-lg">
+                        <h4 class="font-bold text-lg mb-2 text-slate-800">Integritet og Transparens</h4>
+                        <p class="text-sm text-slate-600">Alle data og systemhandlinger loggføres for full sporbarhet og ansvarlighet.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-slate-200">
+
+        <section id="protocols">
+            <div class="text-center max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold text-slate-900 mb-4">Interaktiv Protokoll-utforsker</h2>
+                <p class="text-lg text-slate-600 mb-8">
+                    Project Sentinel består av flere spesialiserte AI-protokoller som jobber i tandem. Klikk på en protokoll for å lære mer om dens spesifikke funksjon og hvordan den bidrar til det helhetlige situasjonsbildet.
+                </p>
+            </div>
+            <div class="flex flex-col lg:flex-row gap-8 items-start">
+                <div class="w-full lg:w-3/5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center justify-center">
+                        <div data-protocol="GABRIEL" class="protocol-node border-2 border-slate-300 rounded-lg p-4 text-center h-24 flex items-center justify-center">GABRIEL<br>(Integritetsvakt)</div>
+                        <div data-protocol="RAFAEL" class="protocol-node border-2 border-slate-300 rounded-lg p-4 text-center h-24 flex items-center justify-center">RAFAEL<br>(Bevegelsesanalyse)</div>
+                        <div data-protocol="URIEL" class="protocol-node border-2 border-slate-300 rounded-lg p-4 text-center h-24 flex items-center justify-center">URIEL<br>(Miljøanalyse)</div>
+                        <div data-protocol="AZRAEL" class="protocol-node border-2 border-slate-300 rounded-lg p-4 text-center h-24 flex items-center justify-center">AZRAEL<br>(Emosjonsanalyse)</div>
+                        <div data-protocol="SERAPHIM" class="protocol-node border-2 border-slate-300 rounded-lg p-4 text-center h-24 flex items-center justify-center">SERAPHIM<br>(Signalanalyse)</div>
+                        <div data-protocol="SANDALPHONE" class="protocol-node border-2 border-slate-300 rounded-lg p-4 text-center h-24 flex items-center justify-center">SANDALPHONE<br>(Sosial Dynamikk)</div>
+                        <div data-protocol="METATRON" class="protocol-node border-4 border-sky-500 rounded-lg p-6 text-center md:col-span-2 h-32 flex items-center justify-center text-xl font-bold bg-sky-50">METATRON<br>(Prediktiv Syntese)</div>
+                    </div>
+                </div>
+                <div id="protocol-details" class="w-full lg:w-2/5 section-card p-8 sticky top-28">
+                    <h3 id="protocol-title" class="text-2xl font-bold text-slate-800 mb-2">Velg en protokoll</h3>
+                    <p id="protocol-description" class="text-slate-600">Klikk på en av protokollene til venstre for å se detaljert informasjon her.</p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-slate-200">
+
+        <section id="risk">
+             <div class="text-center max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold text-slate-900 mb-4">Dynamisk Risikoanalyse</h2>
+                <p class="text-lg text-slate-600 mb-8">
+                    METATRON kalkulerer en samlet trusselscore basert på input fra de andre protokollene. Velg ulike hendelser under for å se hvordan de påvirker den totale risikovurderingen i sanntid.
+                </p>
+            </div>
+            <div class="section-card p-8">
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <div class="lg:w-1/2">
+                        <h3 class="text-xl font-bold mb-4">Simulerte Hendelser</h3>
+                        <div id="risk-triggers" class="space-y-3"></div>
+                    </div>
+                    <div class="lg:w-1/2">
+                         <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold">Total Trusselscore</h3>
+                            <div id="threat-level-indicator" class="threat-level-indicator w-32 text-center py-1 px-3 rounded-full font-bold bg-gray-200 text-gray-800">
+                                <span id="threat-level-text">LAV</span>: <span id="total-risk-score">0</span>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="riskChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <hr class="border-slate-200">
+
+        <section id="pipeline">
+            <div class="text-center max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold text-slate-900 mb-4">Visualisering av Datapipeline</h2>
+                <p class="text-lg text-slate-600 mb-8">
+                    Dette diagrammet illustrerer hvordan informasjon flyter gjennom Project Sentinel, fra rå sensordata til en ferdig analyse presentert for operatøren. Klikk på "Start Animasjon" for å se prosessen.
+                </p>
+                <button id="animate-pipeline-btn" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-4 rounded-lg transition-colors mb-8">Start Animasjon</button>
+            </div>
+            <div id="pipeline-container" class="space-y-4 text-center">
+                <!-- Pipeline items will be generated by JS -->
+            </div>
+        </section>
+
+        <hr class="border-slate-200">
+
+        <section id="rules">
+             <div class="text-center max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold text-slate-900 mb-4">Adferdskodeks og Retningslinjer</h2>
+                <p class="text-lg text-slate-600 mb-8">
+                    Bruk av Project Sentinel krever streng overholdelse av etiske retningslinjer og rollebasert tilgangskontroll. Utforsk de ulike seksjonene for å forstå ansvaret som følger med bruken av systemet.
+                </p>
+            </div>
+            <div class="section-card">
+                <div class="border-b border-slate-200">
+                    <nav id="rules-tabs" class="flex -mb-px px-8" aria-label="Tabs">
+                        <button data-tab="kodeks" class="rules-tab border-b-2 font-medium text-lg p-4 border-sky-500 text-sky-600">Adferdskodeks</button>
+                        <button data-tab="roller" class="rules-tab border-b-2 font-medium text-lg p-4 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300">Tilgangsnivåer</button>
+                        <button data-tab="nødprotokoll" class="rules-tab border-b-2 font-medium text-lg p-4 border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300">Nødprotokoll</button>
+                    </nav>
+                </div>
+                <div id="rules-content" class="p-8">
+                    <!-- Content will be injected by JS -->
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-slate-200">
+
+        <section id="scenarios">
+             <div class="text-center max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold text-slate-900 mb-4">Interaktive Treningsscenarier</h2>
+                <p class="text-lg text-slate-600 mb-8">
+                    Velg et scenario for å se en simulert hendelsesforløp. Dette viser hvordan de ulike protokollene jobber sammen for å identifisere en potensiell trussel og gi operatøren et handlingsgrunnlag.
+                </p>
+            </div>
+            <div class="section-card p-8 max-w-5xl mx-auto">
+                <div class="mb-4">
+                    <label for="scenario-selector" class="block mb-2 text-sm font-medium text-slate-900">Velg et scenario:</label>
+                    <select id="scenario-selector" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full p-2.5">
+                        <option value="none" selected>-- Velg --</option>
+                        <option value="scenario1">Scenario 3.4.1: Plutselig gruppedannelse</option>
+                        <option value="scenario2">Scenario 5.1.2: Koordinert, unormal bevegelse</option>
+                    </select>
+                </div>
+                <div id="scenario-output" class="bg-slate-900 text-white font-mono text-sm rounded-lg p-6 h-96 overflow-y-auto">
+                    <p class="text-slate-400">&gt; Venter på valg av scenario...</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-400 mt-24">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p>&copy; 2025 Project Sentinel. System for myndiggjort beslutningstaking.</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const protocolData = {
+        GABRIEL: { title: "GABRIEL (Integritetsvakt)", description: "Verifiserer integriteten og kvaliteten på innkommende data. Sikrer at ansiktsgjenkjenning opererer innenfor definerte kvalitetsparametere for å unngå feilidentifikasjon." },
+        RAFAEL: { title: "RAFAEL (Bevegelsesanalyse)", description: "Overvåker og analyserer bevegelsesmønstre. Identifiserer uvanlig flukt- eller forfølgelsesatferd, og synkroniserte bevegelser i grupper som kan indikere planlagt handling." },
+        URIEL: { title: "URIEL (Miljøanalyse)", description: "Oppdager avvik i det fysiske miljøet. Dette inkluderer deteksjon av potensielt farlige objekter (f.eks. forlatte gjenstander) og plutselige, høye lyder (f.eks. skrik, smell)." },
+        AZRAEL: { title: "AZRAEL (Emosjonsanalyse)", description: "Utfører dybdeanalyse av emosjonell tilstand basert på ansiktsuttrykk og (simulert) kroppsspråk. Identifiserer dominerende følelser som sinne, frykt og glede i en folkemengde." },
+        SERAPHIM: { title: "SERAPHIM (Signalanalyse)", description: "Simulerer triangulering av mobilenheter for å identifisere og spore gruppedannelse og klynger av mennesker, selv uten direkte visuell kontakt." },
+        SANDALPHONE: { title: "SANDALPHONE (Sosial Dynamikk)", description: "Evaluerer interaksjonen mellom individer og grupper. Analyserer sosial samhørighet, emosjonell smitte og dannelsen av 'ingrupper' og 'utgrupper'." },
+        METATRON: { title: "METATRON (Prediktiv Syntese)", description: "Systemets kjerne-AI. Samler data fra alle andre protokoller og bruker Gemini API til å generere en helhetlig risikovurdering og prediktive analyser om sannsynlige fremtidige hendelser." }
+    };
+
+    const riskData = [
+        { protocol: "URIEL", event: "Deteksjon av forlatt objekt", score: 3 },
+        { protocol: "URIEL", event: "Høy lyd (skrik/smell)", score: 2 },
+        { protocol: "AZRAEL", event: "Høy konsentrasjon av 'sinne' i gruppe", score: 2 },
+        { protocol: "AZRAEL", event: "Høy konsentrasjon av 'frykt' (panikk)", score: 3 },
+        { protocol: "SANDALPHONE", event: "Rask dannelse av stor, kohesiv gruppe", score: 2 },
+        { protocol: "SANDALPHONE", event: "Høy negativ energi/smitte mellom grupper", score: 5 },
+        { protocol: "RAFAEL", event: "Synkronisert, aggressiv bevegelse", score: 4 },
+        { protocol: "RAFAEL", event: "Plutselig, kaotisk bevegelse (flukt)", score: 3 }
+    ];
+    
+    const pipelineData = [
+        { name: 'Sensor-input', description: 'Kameraer/Mikrofoner' },
+        { name: 'GABRIEL', description: 'Integritets-sjekk' },
+        { name: 'Parallell Analyse', description: 'URIEL, RAFAEL, AZRAEL, SERAPHIM' },
+        { name: 'SANDALPHONE', description: 'Sosial Syntese' },
+        { name: 'METATRON', description: 'Prediktiv Analyse (Gemini API)' },
+        { name: 'Operatør-dashboard', description: 'Analyse & Anbefaling' }
+    ];
+
+    const rulesContent = {
+        kodeks: `
+            <h3 class="text-xl font-bold mb-4 text-slate-800">Kjerneverdier</h3>
+            <ul class="space-y-4 list-disc list-inside text-slate-600">
+                <li><strong>Bekreft før Handling:</strong> En AI-alarm er et utgangspunkt, ikke en ordre. Verifiser alltid funn.</li>
+                <li><strong>Motstå Automatiseringsbias:</strong> Still alltid kritiske spørsmål til systemets konklusjoner. Ikke stol blindt på teknologien.</li>
+                <li><strong>Respekter Personvern:</strong> Systemet skal kun brukes til legitime sikkerhetsformål innenfor lovens rammer.</li>
+                <li><strong>Rapporter Avvik:</strong> Enhver feil, bias eller uetisk resultat skal umiddelbart rapporteres for systemforbedring.</li>
+                <li><strong>Beskytt Data:</strong> All systemdata er sensitiv og skal behandles med høyeste grad av konfidensialitet.</li>
+            </ul>`,
+        roller: `
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-slate-50 p-6 rounded-lg">
+                    <h4 class="font-bold text-lg mb-2 text-slate-800">Nivå 1: Observatør</h4>
+                    <p class="text-sm text-slate-600"><strong>Tilgang:</strong> Kun lesetilgang til dashboard. Kan ikke iverksette tiltak. <strong>Formål:</strong> Situasjonsforståelse for støttepersonell.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-lg border-2 border-sky-500">
+                    <h4 class="font-bold text-lg mb-2 text-slate-800">Nivå 2: Feltoperatør</h4>
+                    <p class="text-sm text-slate-600"><strong>Tilgang:</strong> Full tilgang til sanntidsverktøy. Kan iverksette tiltak. <strong>Formål:</strong> Primærbruker under en operasjon.</p>
+                </div>
+                <div class="bg-slate-50 p-6 rounded-lg">
+                    <h4 class="font-bold text-lg mb-2 text-slate-800">Nivå 3: Administrator</h4>
+                    <p class="text-sm text-slate-600"><strong>Tilgang:</strong> Full systemtilgang, inkludert konfigurasjon og brukerstyring. <strong>Formål:</strong> Systemvedlikehold.</p>
+                </div>
+            </div>`,
+        nødprotokoll: `
+            <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-6 rounded-r-lg">
+                <h3 class="text-xl font-bold mb-4">DEUS Override</h3>
+                <p class="text-red-800">I ekstraordinære situasjoner der en umiddelbar, overhengende trussel mot liv krever det, kan en operatør (Nivå 2+) aktivere <strong>DEUS Override</strong>.
+                <ul class="mt-4 space-y-2 list-disc list-inside">
+                    <li><strong>Effekt:</strong> Deaktiverer midlertidig AI-anbefalinger og gir operatøren direkte kontroll.</li>
+                    <li><strong>Krav:</strong> Krever dobbel bekreftelse og skriftlig begrunnelse.</li>
+                    <li><strong>Logging:</strong> Utløser en høyprioritets-hendelse i systemets audit-logg for etterfølgende gjennomgang.</li>
+                </ul>
+                </p>
+            </div>
+            `
+    };
+
+    const scenarios = {
+        scenario1: [
+            { time: "12:01:05", source: "SERAPHIM", log: "Detekterer rask økning av enheter i Sone C." },
+            { time: "12:01:45", source: "SANDALPHONE", log: "Identifiserer to distinkte grupper (A, B). Intern energi nøytral." },
+            { time: "12:02:30", source: "AZRAEL", log: "Rapporterer kraftig økning i 'sinne' i Gruppe A." },
+            { time: "12:02:55", source: "METATRON", log: "PREDIKSJON: 93% sanns. for verbal konflikt innen 2 min. ANBEFALING: Etabler visuell tilstedeværelse. Sett trusselnivå til GUL." },
+            { time: "", source: "OPERATØR", log: "Anbefaling fulgt. Patrulje dirigert til Sone C." }
+        ],
+        scenario2: [
+            { time: "22:50:10", source: "RAFAEL", log: "Flagger anomali: 3 individer beveger seg synkronisert og raskt." },
+            { time: "22:50:40", source: "AZRAEL", log: "Rapporterer atypisk lav emosjonell respons (nøytral) hos individene. Indikerer planlagt handling." },
+            { time: "22:51:05", source: "METATRON", log: "PREDIKSJON: Koordinert bevegelse indikerer høy intensjon. Potensial for innbrudd/hærverk. ANBEFALING: Følg individene live og varsle patrulje." },
+            { time: "", source: "OPERATØR", log: "Dedikerer monitor til å følge individer. Forhåndsvarsel sendt til patrulje." }
+        ]
+    };
+
+    const protocolNodes = document.querySelectorAll('.protocol-node');
+    const protocolTitle = document.getElementById('protocol-title');
+    const protocolDescription = document.getElementById('protocol-description');
+
+    protocolNodes.forEach(node => {
+        node.addEventListener('click', () => {
+            const protocolId = node.dataset.protocol;
+            const data = protocolData[protocolId];
+
+            protocolNodes.forEach(n => n.classList.remove('active'));
+            node.classList.add('active');
+
+            protocolTitle.textContent = data.title;
+            protocolDescription.textContent = data.description;
+        });
+    });
+
+    const riskTriggersContainer = document.getElementById('risk-triggers');
+    let riskChart;
+    let selectedRisks = {};
+
+    function initializeRiskSection() {
+        riskData.forEach((risk, index) => {
+            const div = document.createElement('div');
+            div.className = "flex items-center";
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `risk-${index}`;
+            checkbox.dataset.score = risk.score;
+            checkbox.dataset.protocol = risk.protocol;
+            checkbox.className = "h-5 w-5 rounded border-gray-300 text-sky-600 focus:ring-sky-500 cursor-pointer";
+            checkbox.addEventListener('change', (e) => handleRiskChange(e, risk));
+            
+            const label = document.createElement('label');
+            label.htmlFor = `risk-${index}`;
+            label.className = "ml-3 block text-sm font-medium text-slate-700 cursor-pointer";
+            label.textContent = `${risk.event} (+${risk.score}p, ${risk.protocol})`;
+            
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            riskTriggersContainer.appendChild(div);
+        });
+
+        const ctx = document.getElementById('riskChart').getContext('2d');
+        riskChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Risikobidrag',
+                    data: [],
+                    backgroundColor: 'rgba(14, 165, 233, 0.6)',
+                    borderColor: 'rgba(14, 165, 233, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 25
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Poeng: ${context.raw}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        updateRiskChart();
+    }
+
+    function handleRiskChange(event, risk) {
+        if (event.target.checked) {
+            if (!selectedRisks[risk.protocol]) {
+                selectedRisks[risk.protocol] = 0;
+            }
+            selectedRisks[risk.protocol] += risk.score;
+        } else {
+            selectedRisks[risk.protocol] -= risk.score;
+            if (selectedRisks[risk.protocol] <= 0) {
+                delete selectedRisks[risk.protocol];
+            }
+        }
+        updateRiskChart();
+    }
+    
+    function updateRiskChart() {
+        const labels = Object.keys(selectedRisks);
+        const data = Object.values(selectedRisks);
+        let totalScore = data.reduce((sum, val) => sum + val, 0);
+
+        riskChart.data.labels = labels;
+        riskChart.data.datasets[0].data = data;
+        riskChart.update();
+
+        const scoreEl = document.getElementById('total-risk-score');
+        const levelTextEl = document.getElementById('threat-level-text');
+        const indicatorEl = document.getElementById('threat-level-indicator');
+
+        scoreEl.textContent = totalScore;
+        
+        indicatorEl.className = "threat-level-indicator w-32 text-center py-1 px-3 rounded-full font-bold transition-colors";
+        
+        if (totalScore === 0) {
+            levelTextEl.textContent = 'LAV';
+            indicatorEl.classList.add('bg-gray-200', 'text-gray-800');
+        } else if (totalScore <= 4) {
+            levelTextEl.textContent = 'MODERAT';
+            indicatorEl.classList.add('bg-yellow-200', 'text-yellow-800');
+        } else if (totalScore <= 9) {
+            levelTextEl.textContent = 'HØY';
+            indicatorEl.classList.add('bg-orange-200', 'text-orange-800');
+        } else {
+            levelTextEl.textContent = 'KRITISK';
+            indicatorEl.classList.add('bg-red-200', 'text-red-800');
+        }
+    }
+
+    function initializeRules() {
+        const tabs = document.querySelectorAll('.rules-tab');
+        const contentEl = document.getElementById('rules-content');
+        
+        function updateTabContent(tabId) {
+            contentEl.innerHTML = rulesContent[tabId];
+            tabs.forEach(t => {
+                if (t.dataset.tab === tabId) {
+                    t.classList.add('border-sky-500', 'text-sky-600');
+                    t.classList.remove('border-transparent', 'text-slate-500', 'hover:text-slate-700', 'hover:border-slate-300');
+                } else {
+                    t.classList.remove('border-sky-500', 'text-sky-600');
+                    t.classList.add('border-transparent', 'text-slate-500', 'hover:text-slate-700', 'hover:border-slate-300');
+                }
+            });
+        }
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => updateTabContent(tab.dataset.tab));
+        });
+
+        updateTabContent('kodeks');
+    }
+
+    const scenarioSelector = document.getElementById('scenario-selector');
+    const scenarioOutput = document.getElementById('scenario-output');
+    scenarioSelector.addEventListener('change', (e) => {
+        const scenarioId = e.target.value;
+        scenarioOutput.innerHTML = '';
+        if (scenarioId === 'none') {
+            scenarioOutput.innerHTML = `<p class="text-slate-400">&gt; Venter på valg av scenario...</p>`;
+            return;
+        }
+
+        const scenario = scenarios[scenarioId];
+        let delay = 0;
+        scenario.forEach(line => {
+            setTimeout(() => {
+                const p = document.createElement('p');
+                let sourceColor = 'text-green-400';
+                if (line.source === 'METATRON') sourceColor = 'text-sky-400 font-bold';
+                if (line.source === 'OPERATØR') sourceColor = 'text-yellow-400 font-bold';
+                
+                p.innerHTML = `<span class="text-slate-500 mr-4">${line.time}</span> <span class="${sourceColor} w-28 inline-block">${line.source}:</span> ${line.log}`;
+                scenarioOutput.appendChild(p);
+                scenarioOutput.scrollTop = scenarioOutput.scrollHeight;
+            }, delay);
+            delay += 700;
+        });
+    });
+    
+    function initializePipeline() {
+        const container = document.getElementById('pipeline-container');
+        pipelineData.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'pipeline-item bg-white p-4 rounded-lg shadow-md max-w-md mx-auto';
+            div.dataset.index = index;
+            div.innerHTML = `<h4 class="font-bold">${item.name}</h4><p class="text-sm text-slate-500">${item.description}</p>`;
+            container.appendChild(div);
+
+            if (index < pipelineData.length - 1) {
+                const arrow = document.createElement('div');
+                arrow.className = 'pipeline-arrow text-3xl text-slate-400 font-thin';
+                arrow.dataset.index = index;
+                arrow.innerHTML = '↓';
+                container.appendChild(arrow);
+            }
+        });
+
+        const animateBtn = document.getElementById('animate-pipeline-btn');
+        animateBtn.addEventListener('click', () => {
+            const items = document.querySelectorAll('.pipeline-item, .pipeline-arrow');
+            items.forEach(item => item.classList.remove('active'));
+            let delay = 0;
+            items.forEach(item => {
+                setTimeout(() => item.classList.add('active'), delay);
+                delay += 300;
+            });
+        });
+    }
+
+    function setupMobileNav() {
+        const mobileNav = document.getElementById('mobile-nav');
+        mobileNav.addEventListener('change', (e) => {
+            window.location.hash = e.target.value;
+        });
+    }
+    
+    function setupScrollSpy() {
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navLinks.forEach(link => {
+                        link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                    });
+                }
+            });
+        }, { rootMargin: "-50% 0px -50% 0px" });
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+    }
+
+    initializeRiskSection();
+    initializeRules();
+    initializePipeline();
+    setupMobileNav();
+    setupScrollSpy();
+});
+</script>
+</body>
+</html>

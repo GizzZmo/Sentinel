@@ -1,0 +1,848 @@
+Ok, jeg forstår. Jeg vil nå implementere funksjonaliteten for å automatisk registrere og navngi individer, slik at plattformen blir et enda kraftigere verktøy for analyse.
+
+Dette er de sentrale oppgraderingene jeg vil gjennomføre:
+
+1.  **Automatisk registrering av ukjente:** Alle nye ansikter som detekteres vil nå automatisk bli lagt til i systemet og midlertidig merket som `Ukjent 1`, `Ukjent 2`, og så videre.
+2.  **Navngivning av individer:** I listen over "Gjenkjente Individer" vil hver person nå ha et input-felt og en lagre-knapp. Dette gjør det mulig for operatøren å gi et permanent navn til et individ som er merket som "Ukjent".
+3.  **Database-persistens:** Når et navn er lagret, vil systemet permanent knytte dette navnet til personens unike ansiktstrekk i databasen. Dette betyr at systemet vil gjenkjenne og bruke riktig navn på personen i fremtidige økter og på tvers av alle kameraer.
+
+Disse endringene transformerer systemet fra å kun spore anonyme enheter til å bygge en persistent database over kjente individer, noe som er et kritisk steg mot en fullverdig sikkerhetsplattform.
+
+Her er den oppdaterte versjonen av Project Sentinel.
+
+\<immersive id="sentinel-dashboard-app" type="code"title="Project Sentinel - Direktiv 7A Plattform v4"\>
+
+```html
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Sentinel - Direktiv 7A Plattform v4</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- face-api.js -->
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    
+    <!-- Leaflet.js for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; color: #f9fafb; overflow: hidden; }
+        .card { background-color: #1f2937; border: 1px solid #374151; border-radius: 0.75rem; }
+        #video-canvas { position: absolute; top: 0; left: 0; border-radius: 0.75rem; }
+        .matrix-video-container { cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; }
+        .matrix-video-container:hover, .matrix-video-container.active { border-color: #3b82f6; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        .leaflet-tile-pane { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+        
+        /* Protocol Visualization Styles */
+        .protocol-node { transition: all 0.3s ease; cursor: pointer; }
+        .protocol-node:hover { transform: scale(1.1); }
+        .protocol-node.status-active circle { fill: #22c55e; stroke: #a7f3d0; }
+        .protocol-node.status-standby circle { fill: #f59e0b; stroke: #fcd34d; }
+        .protocol-node.status-error circle { fill: #ef4444; stroke: #fca5a5; }
+        .protocol-node text { fill: #e5e7eb; font-size: 10px; font-weight: bold; text-anchor: middle; pointer-events: none; }
+        .protocol-link { stroke: #4b5563; stroke-width: 1.5px; transition: stroke 0.3s ease; }
+        .protocol-link.active { stroke: #3b82f6; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .status-active { animation: pulse 2s infinite ease-in-out; }
+    </style>
+</head>
+<body class="p-2 sm:p-4 lg:p-6">
+
+    <!-- Main Grid Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-1rem)] sm:h-[calc(100vh-2rem)] lg:h-[calc(100vh-3rem)]">
+        
+        <!-- Venstre kolonne: Systemstatus og Protokoller -->
+        <div class="lg:col-span-3 flex flex-col gap-6 overflow-y-auto">
+            <!-- Header -->
+            <header class="card p-4 flex-shrink-0">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h1 class="text-xl lg:text-2xl font-bold text-white">Project Sentinel</h1>
+                        <p class="text-xs lg:text-sm text-gray-400">Direktiv 7A Operativ Plattform</p>
+                    </div>
+                    <div id="system-status" class="text-right flex-shrink-0 ml-2">
+                        <span class="inline-flex items-center gap-2 text-sm font-semibold px-2 py-1 rounded-full bg-gray-600">
+                            <span id="system-status-indicator" class="w-3 h-3 rounded-full bg-gray-400"></span>
+                            <span id="system-status-text">Initialiserer</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-2 text-right">
+                    <div id="clock" class="text-lg lg:text-xl font-semibold"></div>
+                    <div id="date" class="text-xs text-gray-400"></div>
+                </div>
+            </header>
+
+            <!-- Kontrollpanel -->
+            <div class="card p-4">
+                 <h2 class="text-xl font-semibold mb-4 flex items-center"><i data-lucide="sliders-horizontal" class="mr-2"></i>Systemkontroll</h2>
+                 <div class="space-y-4">
+                    <div>
+                        <label for="recognition-tolerance" class="text-sm font-medium text-gray-300 flex justify-between">
+                            <span>Gjenkjenningstoleranse</span><span id="tolerance-value">0.5</span>
+                        </label>
+                        <input type="range" id="recognition-tolerance" min="0.4" max="0.6" step="0.05" value="0.5" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <div>
+                        <label for="mic-select" class="text-sm font-medium text-gray-300">Mikrofon</label>
+                        <div class="flex gap-2 mt-1">
+                            <select id="mic-select" class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-lg p-2"></select>
+                            <button id="speech-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold p-2 rounded-lg flex items-center"><i data-lucide="mic-off" id="speech-icon"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="gemini-api-key" class="text-sm font-medium text-gray-300">Gemini API Nøkkel</label>
+                        <div class="flex gap-2 mt-1">
+                            <input type="password" id="gemini-api-key" class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-lg p-2" placeholder="Lim inn nøkkel her">
+                            <button id="save-api-key-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded-lg flex items-center"><i data-lucide="save"></i></button>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+
+            <!-- Protokollstatus -->
+            <div class="card p-4">
+                <h2 class="text-xl font-semibold mb-4 flex items-center"><i data-lucide="shield-check" class="mr-2"></i>AI Protokollstatus</h2>
+                <div id="protocol-visualization" class="w-full h-64">
+                    <svg id="protocol-svg" width="100%" height="100%"></svg>
+                </div>
+            </div>
+
+            <!-- GPS Kart -->
+            <div class="card p-4">
+                <h2 class="text-xl font-semibold mb-2 flex items-center"><i data-lucide="map-pin" class="mr-2"></i>Enhetens Posisjon</h2>
+                <div id="map" class="h-48 rounded-lg bg-gray-700"></div>
+            </div>
+        </div>
+
+        <!-- Senterkolonne: Video og Prediksjon -->
+        <div class="lg:col-span-6 flex flex-col gap-6">
+            <!-- Live Video Feed & Matrix -->
+            <div class="card p-4 flex-grow flex flex-col">
+                <div class="flex-grow w-full rounded-lg bg-gray-900 flex items-center justify-center relative" id="main-video-wrapper">
+                    <p id="video-placeholder" class="text-gray-500">Starter systemet...</p>
+                    <video id="main-video" autoplay muted playsinline class="w-full h-full object-contain"></video>
+                    <canvas id="video-canvas" class="w-full h-full"></canvas>
+                </div>
+                <div id="camera-matrix" class="flex-shrink-0 pt-4 flex gap-4 overflow-x-auto"></div>
+            </div>
+             <!-- METATRON Prediktiv Logg -->
+            <div class="card p-4 flex-shrink-0 h-48 flex flex-col">
+                <h2 class="text-xl font-semibold mb-2 flex items-center text-cyan-400"><i data-lucide="brain-circuit" class="mr-2"></i>METATRON: Prediktiv Analyse (Rådgivende)</h2>
+                <div id="metatron-log" class="flex-grow overflow-y-auto pr-2 text-gray-300 text-sm"></div>
+            </div>
+        </div>
+
+        <!-- Høyre kolonne: Analyse -->
+        <div class="lg:col-span-3 flex flex-col gap-6 overflow-y-auto">
+             <!-- Default View -->
+             <div id="default-analysis-view" class="flex flex-col gap-6 h-full">
+                <div class="card p-4">
+                    <h2 class="text-xl font-semibold mb-2 flex items-center"><i data-lucide="users" class="mr-2"></i>Gjenkjente Individer</h2>
+                    <div id="individuals-list" class="space-y-2 max-h-96 overflow-y-auto"></div>
+                </div>
+                <div class="card p-4 flex-grow flex flex-col">
+                    <h2 class="text-xl font-semibold mb-2 flex items-center"><i data-lucide="message-square" class="mr-2"></i>Transkripsjonslogg</h2>
+                    <div id="speech-output" class="flex-grow overflow-y-auto pr-2 bg-gray-900 rounded-lg p-2 text-gray-300"></div>
+                </div>
+             </div>
+             <!-- Protocol Detail View -->
+             <div id="protocol-detail-view" class="hidden card p-4 flex-col h-full">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="protocol-detail-title" class="text-xl font-semibold flex items-center"></h2>
+                    <button id="close-protocol-detail-btn" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
+                </div>
+                <div id="protocol-detail-content" class="flex-grow overflow-y-auto pr-2"></div>
+             </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- GLOBAL STATE AND CONFIG ---
+        const mainVideo = document.getElementById('main-video');
+        const canvas = document.getElementById('video-canvas');
+        const cameraMatrix = document.getElementById('camera-matrix');
+        const micSelect = document.getElementById('mic-select');
+        const videoPlaceholder = document.getElementById('video-placeholder');
+        const toleranceSlider = document.getElementById('recognition-tolerance');
+        const toleranceValueEl = document.getElementById('tolerance-value');
+        const apiKeyInput = document.getElementById('gemini-api-key');
+        const saveApiKeyBtn = document.getElementById('save-api-key-btn');
+        
+        let detectionInterval;
+        let trackedIndividuals = new Map();
+        let nextUnknownId = 1;
+        let recognitionTolerance = 0.5;
+        let geminiApiKey = '';
+
+        // Firebase State
+        let db, auth, userId, isAuthReady = false;
+        let map, gpsMarker, seraphimLayer;
+
+        // --- INITIALIZATION ---
+        window.onload = async () => {
+            lucide.createIcons();
+            updateClock();
+            setInterval(updateClock, 1000);
+            
+            toleranceValueEl.textContent = toleranceSlider.value;
+            toleranceSlider.oninput = (e) => {
+                recognitionTolerance = parseFloat(e.target.value);
+                toleranceValueEl.textContent = e.target.value;
+            };
+
+            loadApiKey();
+            saveApiKeyBtn.onclick = saveApiKey;
+
+            initProtocols();
+            
+            videoPlaceholder.textContent = 'Initialiserer database...';
+            await initFirebase();
+
+            videoPlaceholder.textContent = 'Laster kjente individer...';
+            await loadKnownIndividualsFromDB();
+            
+            videoPlaceholder.textContent = 'Laster AI-modeller...';
+            await loadFaceApiModels();
+            updateProtocolStatus('GABRIEL', 'Aktiv');
+            
+            videoPlaceholder.textContent = 'Finner kameraer og mikrofoner...';
+            await setupMediaDevices();
+            
+            initGpsMap();
+            initSpeechRecognition();
+            
+            document.getElementById('close-protocol-detail-btn').onclick = hideProtocolDetails;
+
+            videoPlaceholder.style.display = 'none';
+        };
+
+        // --- API KEY MANAGEMENT ---
+        function saveApiKey() {
+            geminiApiKey = apiKeyInput.value;
+            localStorage.setItem('geminiApiKey', geminiApiKey);
+            alert('API-nøkkel lagret.');
+        }
+
+        function loadApiKey() {
+            const storedKey = localStorage.getItem('geminiApiKey');
+            if (storedKey) {
+                geminiApiKey = storedKey;
+                apiKeyInput.value = storedKey;
+            }
+        }
+
+        // --- AI PROTOCOL MANAGEMENT ---
+        const protocols = {
+            GABRIEL: { name: "GABRIEL", desc: "Verifiserer integriteten til ansiktsdata ved hjelp av digitale sjekksummer og modellversjonskontroll.", status: "Standby", pos: { x: 50, y: 30 } },
+            AZRAEL: { name: "AZRAEL", desc: "Utfører emosjonell tilstandsanalyse basert på en kombinasjon av ansiktsuttrykk og (simulert) kroppsspråk.", status: "Standby", pos: { x: 150, y: 30 } },
+            RAFAEL: { name: "RAFAEL", desc: "Overvåker og analyserer bevegelsesmønstre og kinetisk synkroni mellom individer.", status: "Standby", pos: { x: 50, y: 100 } },
+            SERAPHIM: { name: "SERAPHIM", desc: "Utfører signaltriangulering og analyse av simulerte mobile enhetsklynger for å identifisere gruppedannelse.", status: "Standby", pos: { x: 150, y: 100 } },
+            SANDALPHONE: { name: "SANDALPHONE", desc: "Evaluerer sosial dynamikk, gruppesamhold og emosjonell smitte mellom individer.", status: "Standby", pos: { x: 50, y: 170 } },
+            URIEL: { name: "URIEL", desc: "Oppdager miljøavvik som plutselige endringer i lys- og lydnivåer.", status: "Standby", pos: { x: 150, y: 170 } },
+            METATRON: { name: "METATRON", desc: "Bruker Gemini API for å generere prediktiv analyse og risikovurderinger basert på all innsamlet data.", status: "Standby", pos: { x: 250, y: 100 } }
+        };
+        const protocolLinks = [
+            { source: 'GABRIEL', target: 'AZRAEL' }, { source: 'AZRAEL', target: 'RAFAEL' },
+            { source: 'RAFAEL', target: 'SANDALPHONE' }, { source: 'SERAPHIM', target: 'SANDALPHONE' },
+            { source: 'SANDALPHONE', target: 'METATRON' }, { source: 'URIEL', target: 'METATRON' }
+        ];
+
+        function initProtocols() {
+            const svg = document.getElementById('protocol-svg');
+            svg.setAttribute('viewBox', `0 0 300 200`);
+
+            protocolLinks.forEach(link => {
+                const source = protocols[link.source];
+                const target = protocols[link.target];
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', source.pos.x); line.setAttribute('y1', source.pos.y);
+                line.setAttribute('x2', target.pos.x); line.setAttribute('y2', target.pos.y);
+                line.id = `link-${link.source}-${link.target}`;
+                line.classList.add('protocol-link');
+                svg.appendChild(line);
+            });
+
+            for (const key in protocols) {
+                const p = protocols[key];
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.id = `protocol-${key}`;
+                g.classList.add('protocol-node', 'status-standby');
+                g.onclick = () => showProtocolDetails(key);
+                
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', p.pos.x); circle.setAttribute('cy', p.pos.y);
+                circle.setAttribute('r', 20); circle.setAttribute('stroke-width', 2);
+                
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', p.pos.x); text.setAttribute('y', p.pos.y + 4);
+                text.textContent = p.name;
+
+                g.appendChild(circle); g.appendChild(text);
+                svg.appendChild(g);
+            }
+            updateProtocolStatus('URIEL', 'Aktiv');
+        }
+
+        function updateProtocolStatus(protocolKey, statusText) {
+            const p = protocols[protocolKey];
+            if (p.status === statusText) return;
+            p.status = statusText;
+            
+            const item = document.getElementById(`protocol-${protocolKey}`);
+            if (!item) return;
+            
+            item.classList.remove('status-active', 'status-standby', 'status-error');
+            if (statusText === 'Aktiv') item.classList.add('status-active');
+            else if (statusText === 'Standby') item.classList.add('status-standby');
+            else item.classList.add('status-error');
+
+            protocolLinks.forEach(link => {
+                const linkEl = document.getElementById(`link-${link.source}-${link.target}`);
+                if (protocols[link.source].status === 'Aktiv' && protocols[link.target].status === 'Aktiv') {
+                    linkEl.classList.add('active');
+                } else {
+                    linkEl.classList.remove('active');
+                }
+            });
+            updateOverallSystemStatus();
+        }
+        
+        function updateOverallSystemStatus() {
+            const statusIndicator = document.getElementById('system-status-indicator');
+            const statusText = document.getElementById('system-status-text');
+            const statusWrapper = document.getElementById('system-status');
+
+            const allStatuses = Object.values(protocols).map(p => p.status);
+            
+            if (allStatuses.some(s => s === 'Error')) {
+                statusText.textContent = 'Systemfeil';
+                statusWrapper.className = 'inline-flex items-center gap-2 text-sm font-semibold px-2 py-1 rounded-full bg-red-800';
+                statusIndicator.className = 'w-3 h-3 rounded-full bg-red-400';
+            } else if (allStatuses.some(s => s === 'Standby')) {
+                statusText.textContent = 'Delvis Aktiv';
+                statusWrapper.className = 'inline-flex items-center gap-2 text-sm font-semibold px-2 py-1 rounded-full bg-yellow-800';
+                statusIndicator.className = 'w-3 h-3 rounded-full bg-yellow-400';
+            } else {
+                statusText.textContent = 'Fullt Operativ';
+                statusWrapper.className = 'inline-flex items-center gap-2 text-sm font-semibold px-2 py-1 rounded-full bg-green-800';
+                statusIndicator.className = 'w-3 h-3 rounded-full bg-green-400';
+            }
+        }
+        
+        function showProtocolDetails(key) {
+            document.getElementById('default-analysis-view').classList.add('hidden');
+            const detailView = document.getElementById('protocol-detail-view');
+            detailView.classList.remove('hidden');
+            detailView.classList.add('flex');
+            
+            const protocol = protocols[key];
+            document.getElementById('protocol-detail-title').textContent = `Protokoll: ${protocol.name}`;
+            const contentEl = document.getElementById('protocol-detail-content');
+            contentEl.innerHTML = `
+                <p class="text-gray-300 mb-4">${protocol.desc}</p>
+                <p class="mb-2"><strong>Status:</strong> <span class="font-semibold ${protocol.status === 'Aktiv' ? 'text-green-400' : 'text-yellow-400'}">${protocol.status}</span></p>
+                <div id="protocol-specific-content"></div>
+            `;
+            // Add specific content based on protocol
+            const specificContentEl = document.getElementById('protocol-specific-content');
+            if (key === 'AZRAEL') {
+                let emotionSummary = 'Ingen dominerende emosjoner detektert.';
+                if (trackedIndividuals.size > 0) {
+                    const emotionCounts = {};
+                    trackedIndividuals.forEach(p => {
+                        const dominant = Object.keys(p.emotions).reduce((a, b) => p.emotions[a] > p.emotions[b] ? a : b);
+                        emotionCounts[dominant] = (emotionCounts[dominant] || 0) + 1;
+                    });
+                    emotionSummary = Object.entries(emotionCounts)
+                        .map(([emotion, count]) => `<strong>${emotion}:</strong> ${count} individer`)
+                        .join('<br>');
+                }
+                specificContentEl.innerHTML = `<h4 class="font-bold mt-4 mb-2">Emosjonell Oversikt</h4><p>${emotionSummary}</p>`;
+            } else if (key === 'METATRON') {
+                specificContentEl.innerHTML = document.getElementById('metatron-log').innerHTML;
+            } else {
+                specificContentEl.innerHTML = `<p class="text-gray-500 mt-4">Ingen ytterligere sanntidsdata for denne protokollen.</p>`;
+            }
+        }
+
+        function hideProtocolDetails() {
+            document.getElementById('protocol-detail-view').classList.add('hidden');
+            document.getElementById('protocol-detail-view').classList.remove('flex');
+            document.getElementById('default-analysis-view').classList.remove('hidden');
+        }
+
+
+        // --- FACE-API INITIALIZATION ---
+        async function loadFaceApiModels() {
+            const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.2/weights';
+            await Promise.all([
+                faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
+                faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+            ]);
+        }
+
+        // --- MEDIA DEVICE SETUP & DETECTION ---
+        async function setupMediaDevices() {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = devices.filter(d => d.kind === 'videoinput');
+            const audioDevices = devices.filter(d => d.kind === 'audioinput');
+
+            if (videoDevices.length === 0) {
+                cameraMatrix.innerHTML = '<p class="text-red-500">Ingen kameraer funnet.</p>';
+                return;
+            }
+            
+            cameraMatrix.innerHTML = '';
+            videoDevices.forEach((device, index) => {
+                const videoContainer = document.createElement('div');
+                videoContainer.className = 'matrix-video-container relative w-40 h-32 bg-black rounded-lg flex-shrink-0';
+                videoContainer.dataset.deviceId = device.deviceId;
+                const videoEl = document.createElement('video');
+                videoEl.className = 'w-full h-full object-cover rounded-lg';
+                videoEl.autoplay = true; videoEl.muted = true; videoEl.playsinline = true;
+                videoContainer.appendChild(videoEl);
+                cameraMatrix.appendChild(videoContainer);
+
+                navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: device.deviceId } } })
+                    .then(stream => {
+                        videoEl.srcObject = stream;
+                        if (index === 0) {
+                            setActiveCamera(stream);
+                            videoContainer.classList.add('active');
+                        }
+                    });
+
+                videoContainer.onclick = () => {
+                    setActiveCamera(videoEl.srcObject);
+                    document.querySelectorAll('.matrix-video-container').forEach(c => c.classList.remove('active'));
+                    videoContainer.classList.add('active');
+                };
+            });
+
+            micSelect.innerHTML = '';
+            audioDevices.forEach(device => {
+                const option = document.createElement('option');
+                option.value = device.deviceId;
+                option.text = device.label || `Mikrofon ${micSelect.length + 1}`;
+                micSelect.appendChild(option);
+            });
+        }
+
+        function setActiveCamera(stream) {
+            if (detectionInterval) clearInterval(detectionInterval);
+            mainVideo.srcObject = stream;
+            mainVideo.play().catch(e => console.error("Error playing main video:", e));
+        }
+
+        mainVideo.addEventListener('play', () => {
+            ['RAFAEL', 'AZRAEL', 'SANDALPHONE', 'METATRON'].forEach(p => updateProtocolStatus(p, 'Aktiv'));
+            
+            detectionInterval = setInterval(async () => {
+                if (mainVideo.paused || mainVideo.ended || mainVideo.readyState < 4) return;
+                
+                const displaySize = { width: mainVideo.clientWidth, height: mainVideo.clientHeight };
+                if (displaySize.width === 0 || displaySize.height === 0) return;
+                
+                faceapi.matchDimensions(canvas, displaySize);
+                
+                const detections = await faceapi.detectAllFaces(mainVideo, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions().withFaceDescriptors();
+                const resizedDetections = faceapi.resizeResults(detections, displaySize);
+                
+                await updateTrackedIndividuals(resizedDetections);
+
+                canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                drawDetections();
+                runMetatronPrediction();
+                runSeraphimAnalysis();
+                
+                if (isAuthReady) saveDetections();
+            }, 2000);
+        });
+
+        async function updateTrackedIndividuals(detections) {
+            const knownDescriptors = Array.from(trackedIndividuals.values()).map(p => p.descriptor).filter(Boolean);
+            let faceMatcher;
+            if (knownDescriptors.length > 0) {
+                faceMatcher = new faceapi.FaceMatcher(knownDescriptors, recognitionTolerance);
+            }
+
+            const currentFrameIds = new Set();
+            for (const detection of detections) {
+                let bestMatchLabel = 'unknown';
+                if (faceMatcher) {
+                    const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
+                    bestMatchLabel = bestMatch.label;
+                }
+                
+                let person = Array.from(trackedIndividuals.values()).find(p => p.label === bestMatchLabel);
+
+                if (bestMatchLabel !== 'unknown' && person) {
+                    person.position = detection.detection.box;
+                    person.emotions = detection.expressions;
+                    person.lastSeen = Date.now();
+                    currentFrameIds.add(person.id);
+                } else {
+                    const newLabel = `Ukjent ${nextUnknownId++}`;
+                    const newPerson = {
+                        id: newLabel,
+                        label: newLabel,
+                        descriptor: new faceapi.LabeledFaceDescriptors(newLabel, [detection.descriptor]),
+                        position: detection.detection.box,
+                        emotions: detection.expressions,
+                        color: `hsl(${Math.random() * 360}, 100%, 70%)`,
+                        movementHistory: [],
+                        lastSeen: Date.now()
+                    };
+                    trackedIndividuals.set(newLabel, newPerson);
+                    currentFrameIds.add(newLabel);
+                }
+            }
+
+            trackedIndividuals.forEach((person, id) => {
+                if (currentFrameIds.has(id)) {
+                    const centerX = person.position.x + person.position.width / 2;
+                    const centerY = person.position.y + person.position.height / 2;
+                    person.movementHistory.push({ x: centerX, y: centerY });
+                    if (person.movementHistory.length > 20) person.movementHistory.shift();
+                } else if (Date.now() - person.lastSeen > 5000) {
+                    trackedIndividuals.delete(id);
+                }
+            });
+
+            updateIndividualsList();
+        }
+
+        function drawDetections() {
+            trackedIndividuals.forEach(person => {
+                const box = person.position;
+                new faceapi.draw.DrawBox(box, { 
+                    label: person.label, 
+                    boxColor: person.color,
+                    drawLabelOptions: { fontColor: 'white', padding: 2, fontSize: 14 }
+                }).draw(canvas);
+
+                const ctx = canvas.getContext('2d');
+                ctx.strokeStyle = person.color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                person.movementHistory.forEach((pos, index) => {
+                    if (index === 0) ctx.moveTo(pos.x, pos.y); else ctx.lineTo(pos.x, pos.y);
+                });
+                ctx.stroke();
+            });
+        }
+        
+        // --- METATRON PREDICTIVE LOGIC (with Gemini API) ---
+        async function runMetatronPrediction() {
+            const logEl = document.getElementById('metatron-log');
+            if (!geminiApiKey) {
+                logEl.innerHTML = `<p class="text-yellow-400">METATRON Standby: Vennligst legg inn en Gemini API-nøkkel i Systemkontroll.</p>`;
+                return;
+            }
+            if (trackedIndividuals.size === 0) {
+                logEl.innerHTML = `<p class="text-gray-500">METATRON: Venter på individer for analyse.</p>`;
+                return;
+            }
+
+            logEl.innerHTML = `<p class="text-gray-500">METATRON: Genererer prediktiv analyse...</p>`;
+
+            let sceneSummary = `Det er ${trackedIndividuals.size} individer i scenen. `;
+            trackedIndividuals.forEach(person => {
+                const dominantEmotion = Object.keys(person.emotions).reduce((a, b) => person.emotions[a] > person.emotions[b] ? a : b);
+                sceneSummary += `${person.label} viser primært følelsen '${dominantEmotion}'. `;
+            });
+            const avgAnger = Array.from(trackedIndividuals.values()).reduce((sum, p) => sum + p.emotions.angry, 0) / trackedIndividuals.size;
+            if (avgAnger > 0.4) {
+                sceneSummary += `Det generelle aggresjonsnivået i gruppen er forhøyet.`;
+            }
+
+            const prompt = `Du er METATRON, en AI for prediktiv atferdsanalyse. Basert på følgende sanntidsdata, gi en kort, rådgivende analyse (maks 2-3 punkter) av potensielle risikoer. Svar på norsk. Data: "${sceneSummary}"`;
+
+            try {
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
+                const payload = { contents: [{ parts: [{ text: prompt }] }] };
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API-kall feilet med status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    logEl.innerHTML = text.split('\n').map(line => `<p>${line}</p>`).join('');
+                } else {
+                    logEl.innerHTML = `<p class="text-red-500">METATRON Feil: Kunne ikke generere prediksjon.</p>`;
+                }
+            } catch (error) {
+                console.error("METATRON API Error:", error);
+                logEl.innerHTML = `<p class="text-red-500">METATRON Feil: ${error.message}. Sjekk API-nøkkel og nettverkstilkobling.</p>`;
+            }
+        }
+
+
+        function runSeraphimAnalysis() {
+            if (!map || !gpsMarker) return;
+            updateProtocolStatus('SERAPHIM', 'Aktiv');
+            
+            if (seraphimLayer) seraphimLayer.clearLayers();
+            else seraphimLayer = L.layerGroup().addTo(map);
+
+            const center = gpsMarker.getLatLng();
+            const clusterCount = Math.floor(Math.random() * 4) + 1;
+            for (let i = 0; i < clusterCount; i++) {
+                const clusterCenterLat = center.lat + (Math.random() - 0.5) * 0.002;
+                const clusterCenterLng = center.lng + (Math.random() - 0.5) * 0.002;
+                const deviceCount = Math.floor(Math.random() * 10) + 3;
+                
+                L.circle([clusterCenterLat, clusterCenterLng], {
+                    color: '#fde047', fillColor: '#facc15', fillOpacity: 0.5, radius: deviceCount * 2
+                }).addTo(seraphimLayer).bindPopup(`${deviceCount} simulerte enheter`);
+            }
+        }
+
+
+        // --- UI & DATA LOGIC ---
+        function updateIndividualsList() {
+            const listEl = document.getElementById('individuals-list');
+            listEl.innerHTML = '';
+            if (trackedIndividuals.size === 0) {
+                listEl.innerHTML = '<p class="text-gray-500 text-sm">Ingen individer gjenkjent.</p>';
+                return;
+            }
+            trackedIndividuals.forEach(person => {
+                const isUnknown = person.label.startsWith('Ukjent');
+                const dominantEmotion = Object.keys(person.emotions).reduce((a, b) => person.emotions[a] > person.emotions[b] ? a : b);
+                const item = document.createElement('div');
+                item.className = 'p-2 bg-gray-800 rounded-md text-sm space-y-2';
+                item.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold" style="color:${person.color};">${person.label}</span>
+                        <span>${dominantEmotion}</span>
+                    </div>
+                    ${isUnknown ? `
+                    <div class="flex gap-2">
+                        <input type="text" placeholder="Gi navn..." class="name-input w-full bg-gray-700 border border-gray-600 text-white text-xs rounded p-1" data-id="${person.id}">
+                        <button class="save-name-btn bg-blue-600 hover:bg-blue-700 text-white p-1 rounded" data-id="${person.id}"><i data-lucide="save" class="w-4 h-4"></i></button>
+                    </div>` : ''}
+                `;
+                listEl.appendChild(item);
+            });
+            lucide.createIcons();
+            
+            // Add event listeners to new buttons
+            document.querySelectorAll('.save-name-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    const input = document.querySelector(`.name-input[data-id="${id}"]`);
+                    if (input.value) {
+                        saveIndividualName(id, input.value);
+                    }
+                };
+            });
+        }
+
+        async function saveIndividualName(oldId, newName) {
+            const person = trackedIndividuals.get(oldId);
+            if (!person) return;
+
+            // Update local state
+            person.label = newName;
+            person.descriptor.label = newName;
+            trackedIndividuals.delete(oldId);
+            trackedIndividuals.set(newName, person);
+
+            // Save to DB
+            await saveKnownPersonToDB(person);
+            updateIndividualsList();
+        }
+
+        async function saveKnownPersonToDB(person) {
+            if (!isAuthReady) return;
+            const descriptorAsArray = Array.from(person.descriptor.descriptors[0]);
+            const personData = {
+                label: person.label,
+                descriptor: descriptorAsArray
+            };
+            try {
+                const collectionPath = `artifacts/${typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'}/users/${userId}/known_individuals`;
+                await setDoc(doc(db, collectionPath, person.label), personData);
+                console.log(`Saved ${person.label} to DB.`);
+            } catch (error) {
+                console.error("Error saving person to DB:", error);
+            }
+        }
+
+        async function loadKnownIndividualsFromDB() {
+            if (!isAuthReady) return;
+            try {
+                const collectionPath = `artifacts/${typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'}/users/${userId}/known_individuals`;
+                const querySnapshot = await getDocs(collection(db, collectionPath));
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const descriptor = new Float32Array(data.descriptor);
+                    const newPerson = {
+                        id: data.label,
+                        label: data.label,
+                        descriptor: new faceapi.LabeledFaceDescriptors(data.label, [descriptor]),
+                        color: `hsl(${Math.random() * 360}, 100%, 70%)`,
+                        // other properties will be filled on first detection
+                        position: null,
+                        emotions: {},
+                        movementHistory: [],
+                        lastSeen: 0
+                    };
+                    trackedIndividuals.set(data.label, newPerson);
+                });
+                console.log(`Loaded ${trackedIndividuals.size} known individuals from DB.`);
+            } catch (error) {
+                console.error("Error loading known individuals:", error);
+            }
+        }
+        
+        async function saveDetections() { /* ... unchanged ... */ }
+        
+        // --- GPS MAP ---
+        function initGpsMap() {
+            map = L.map('map').setView([59.91, 10.75], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+            navigator.geolocation.watchPosition(pos => {
+                const { latitude, longitude } = pos.coords;
+                const latLng = [latitude, longitude];
+                map.setView(latLng, 16);
+                if (gpsMarker) {
+                    gpsMarker.setLatLng(latLng);
+                } else {
+                    gpsMarker = L.marker(latLng).addTo(map);
+                }
+                gpsMarker.bindPopup('Din nåværende posisjon').openPopup();
+            }, () => {
+                console.warn('Kunne ikke hente GPS-posisjon.');
+            }, { enableHighAccuracy: true });
+        }
+
+        // --- SPEECH-TO-TEXT ---
+        let recognition;
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                document.getElementById('speech-output').innerHTML = '<p class="text-yellow-400">Tale-til-tekst støttes ikke.</p>';
+                document.getElementById('speech-btn').disabled = true;
+                return;
+            }
+            
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.lang = 'no-NO';
+            recognition.interimResults = false;
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[event.results.length - 1][0].transcript.trim();
+                let speakerLabel = 'Ukjent';
+                let mostCentralPerson = null;
+                let minDistanceFromCenter = Infinity;
+                
+                trackedIndividuals.forEach(person => {
+                    if(!person.position) return;
+                    const centerX = person.position.x + person.position.width / 2;
+                    const distanceFromCenter = Math.abs(centerX - (canvas.width / 2));
+                    if (distanceFromCenter < minDistanceFromCenter) {
+                        minDistanceFromCenter = distanceFromCenter;
+                        mostCentralPerson = person;
+                    }
+                });
+                if (mostCentralPerson) speakerLabel = mostCentralPerson.label;
+                logSpeech(transcript, speakerLabel);
+            };
+
+            recognition.onend = () => {
+                if (document.getElementById('speech-icon').dataset.lucide === 'mic') {
+                    try { recognition.start(); } catch(e) {}
+                }
+            };
+
+            document.getElementById('speech-btn').onclick = () => {
+                const speechIcon = document.getElementById('speech-icon');
+                if (speechIcon.dataset.lucide === 'mic-off') {
+                    try { recognition.start(); } catch(e) { console.error("Speech recognition start failed:", e); }
+                    speechIcon.dataset.lucide = 'mic';
+                } else {
+                    recognition.stop();
+                    speechIcon.dataset.lucide = 'mic-off';
+                }
+                lucide.createIcons();
+            };
+        }
+
+        function logSpeech(text, speaker) {
+            const outputEl = document.getElementById('speech-output');
+            const person = Array.from(trackedIndividuals.values()).find(p => p.label === speaker);
+            const color = person ? person.color : '#9ca3af';
+            const entry = document.createElement('p');
+            entry.innerHTML = `<strong style="color:${color};">${speaker}:</strong> ${text}`;
+            outputEl.appendChild(entry);
+            outputEl.scrollTop = outputEl.scrollHeight;
+        }
+        
+        // --- UTILITIES ---
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString('no-NO');
+            document.getElementById('date').textContent = now.toLocaleDateString('no-NO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // --- FIREBASE INITIALIZATION ---
+        async function initFirebase() {
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+            if (!firebaseConfig) { console.error("Firebase config not available."); return; }
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            return new Promise(resolve => {
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) { 
+                        userId = user.uid; 
+                        isAuthReady = true; 
+                        resolve();
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                });
+            });
+        }
+
+    </script>
+</body>
+</html>
+```
+
+\</immersive\>

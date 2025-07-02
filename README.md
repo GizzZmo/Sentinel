@@ -1,7 +1,96 @@
-Here’s a README.md and About section based on the code in the index.html file for Project Sentinel:
+# Project Sentinel
 
----
 
+## Project Sentinel er et avanceret beslutningsstøttesystem designet til at give sikkerhedspersonale en proaktiv evne til at identificere og mitigere potentielle trusler i realtid. Systemets kernefilosofi er ikke at erstatte menneskelig dømmekraft, men at forstærke den. Ved at analysere komplekse dataflows fra video, lyd og andre sensorer, giver Sentinel operatøren en dybere situationsforståelse, så de kan træffe mere informerede og effektive beslutninger.
+
+Funktioner
+Protokolbaseret AI-analyse: Specialiserede AI-protokoller (GABRIEL, RAFAEL, URIEL, AZRAEL, SERAPHIM, SANDALPHONE) arbejder sammen for at skabe et holistisk situationsbillede.
+
+METATRON Prediktiv Syntese: Systemets kerne-AI, der samler data fra alle andre protokoller og genererer en samlet risikovurdering og prædiktive analyser.
+
+Dynamisk Risikoanalyse: Interaktiv visualisering af trusselsscores baseret på simulerede hændelser.
+
+Datapipeline Visualisering: Animeret flow af data gennem systemet.
+
+Rollebaseret Adgangskontrol: Definerer klare adgangsniveauer og ansvar for Observatører, Feltoperatører og Administratorer.
+
+Etiske Retningslinjer: Indlejret adfærdskodeks og nødprotokol (DEUS Override) for at sikre ansvarlig brug.
+
+Interaktive Scenarier: Simulerede træningsscenarier for at demonstrere systemets funktionalitet i praksis.
+
+Teknologier
+Backend: Python 3 med Flask
+
+Frontend: HTML5, Tailwind CSS, Vanilla JavaScript, Chart.js
+
+Deployment/Automation: GitHub Actions (eksempel)
+
+API Integration: Simuleret Gemini API-kald for METATRON
+
+Opsætning og Kørsel
+Følg disse trin for at få Project Sentinel til at køre lokalt på din maskine.
+
+Forudsætninger
+Python 3.8+
+
+pip (Python pakkehåndtering)
+
+En moderne webbrowser
+
+Trin
+Klon repository'et:
+
+git clone https://github.com/din-bruger/project-sentinel.git
+cd project-sentinel
+
+Kør opsætningsscriptet:
+Dette script vil opsætte Python-miljøet for backend'en, installere afhængigheder og starte både backend-serveren og åbne frontend'en i din webbrowser.
+
+chmod +x scripts/setup_and_run.sh
+./scripts/setup_and_run.sh
+
+Backend'en vil køre på http://127.0.0.1:5000.
+
+Frontend'en (frontend/index.html) vil åbne automatisk i din standard webbrowser.
+
+Manuel Kørsel (alternativ):
+
+Backend:
+
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+export FLASK_APP=app.py
+flask run --port 5000
+
+Backend'en vil nu køre på http://127.0.0.1:5000.
+
+Frontend:
+Åbn frontend/index.html direkte i din webbrowser.
+
+Projektstruktur
+project-sentinel/
+├── backend/                  # Python Flask backend
+│   ├── app.py                # Hovedapplikation og API-endpoints
+│   └── requirements.txt      # Python afhængigheder
+├── frontend/                 # HTML/CSS/JS frontend
+│   └── index.html            # Enkeltsides webapplikation
+├── .github/                  # GitHub Actions workflows
+│   └── workflows/
+│       └── main.yml          # CI/CD pipeline eksempel
+├── scripts/
+│   └── setup_and_run.sh      # Script til lokal opsætning og kørsel
+├── README.md                 # Dette dokument
+├── HOWTO.md                  # Detaljeret guide
+├── WIKI.md                   # Wiki-indhold
+└── QNA.md                    # Ofte stillede spørgsmål
+
+Bidrag
+Vi byder bidrag velkommen! Se venligst CONTRIBUTING.md (hvis den eksisterer) for retningslinjer.
+
+Licens
+Dette projekt er licenseret under MIT-licensen. Se LICENSE (hvis den eksisterer) for mere information.
 # Project Sentinel
 
 Project Sentinel is an advanced, interactive, browser-based security and analysis platform focused on real-time video, audio, and behavioral analytics. Built primarily with HTML, JavaScript, and modern libraries, the platform leverages facial recognition, emotion analysis, device clustering, GPS mapping, and predictive AI to create a persistent database of recognized individuals and actionable security insights.

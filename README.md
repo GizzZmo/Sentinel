@@ -1,4 +1,4 @@
-Here’s a README.md and About section based on the code in your index.html file for Project Sentinel:
+Here’s a README.md and About section based on the code in the index.html file for Project Sentinel:
 
 ---
 

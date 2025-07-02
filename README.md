@@ -40,7 +40,7 @@ En moderne webbrowser
 Trin
 Klon repository'et:
 
-git clone https://github.com/din-bruger/project-sentinel.git
+git clone https://github.com/GizzZmo/project-sentinel.git
 cd project-sentinel
 
 Kør opsætningsscriptet:

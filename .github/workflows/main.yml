@@ -1,0 +1,75 @@
+name: CI/CD Pipeline for Project Sentinel
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test-backend:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9' # Or your preferred Python version
+
+    - name: Install backend dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r backend/requirements.txt
+
+    - name: Run backend tests (Placeholder)
+      run: |
+        echo "Running backend tests..."
+        # Add your backend test commands here, e.g., pytest backend/tests/
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js (for frontend build tools like Tailwind CLI if used)
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16' # Or your preferred Node.js version
+
+    - name: Build frontend (Placeholder for Tailwind JIT/CLI if needed)
+      run: |
+        echo "Building frontend (e.g., compiling Tailwind CSS if not using CDN)..."
+        # If you were using Tailwind CLI to compile CSS, you'd run it here:
+        # npm install -D tailwindcss
+        # npx tailwindcss -i ./src/input.css -o ./dist/output.css --minify
+
+    - name: Lint frontend (Placeholder)
+      run: |
+        echo "Running frontend linting..."
+        # Add frontend linting commands here, e.g., npm run lint
+
+  deploy:
+    needs: [build-and-test-backend, build-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # Only deploy on push to main
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Deploy to hosting provider (Placeholder)
+      run: |
+        echo "Deploying Project Sentinel..."
+        # Add your deployment commands here. This will depend on your hosting provider.
+        # Examples:
+        # - For a simple static site: `rsync -avz frontend/ srv/www/project-sentinel/`
+        # - For a Flask app: `ssh user@your-server "cd /path/to/app && git pull && systemctl restart project-sentinel"`
+        # - Using a cloud provider's CLI (e.g., AWS S3, Google Cloud Run, Azure App Service)
+      env:
+        # Example environment variables for deployment credentials
+        DEPLOY_USERNAME: ${{ secrets.DEPLOY_USERNAME }}
+        DEPLOY_PASSWORD: ${{ secrets.DEPLOY_PASSWORD }}

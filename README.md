@@ -1,22 +1,33 @@
 # Project Sentinel
 
+## Project Sentinel er et avanceret beslutningsstøttesystem designet til at give sikkerhedspersonale
 
-## Project Sentinel er et avanceret beslutningsstøttesystem designet til at give sikkerhedspersonale en proaktiv evne til at identificere og mitigere potentielle trusler i realtid. Systemets kernefilosofi er ikke at erstatte menneskelig dømmekraft, men at forstærke den. Ved at analysere komplekse dataflows fra video, lyd og andre sensorer, giver Sentinel operatøren en dybere situationsforståelse, så de kan træffe mere informerede og effektive beslutninger.
+en proaktiv evne til at identificere og mitigere potentielle trusler i realtid. Systemets
+kernefilosofi er ikke at erstatte menneskelig dømmekraft, men at forstærke den. Ved at analysere
+komplekse dataflows fra video, lyd og andre sensorer, giver Sentinel operatøren en dybere
+situationsforståelse, så de kan træffe mere informerede og effektive beslutninger.
 
 Funktioner
-Protokolbaseret AI-analyse: Specialiserede AI-protokoller (GABRIEL, RAFAEL, URIEL, AZRAEL, SERAPHIM, SANDALPHONE) arbejder sammen for at skabe et holistisk situationsbillede.
 
-METATRON Prediktiv Syntese: Systemets kerne-AI, der samler data fra alle andre protokoller og genererer en samlet risikovurdering og prædiktive analyser.
+GABRIEL (Integritetsvagt): Specialiserede AI-protokoller arbejder sammen for at skabe et
+holistisk situationsbillede.
 
-Dynamisk Risikoanalyse: Interaktiv visualisering af trusselsscores baseret på simulerede hændelser.
+RAFAEL (Bevegelsesanalyse): Systemets kerne-AI, der samler data fra alle andre protokoller
+og genererer en samlet risikovurdering og prædiktive analyser.
 
-Datapipeline Visualisering: Animeret flow af data gennem systemet.
+URIEL (Miljøanalyse): Interaktiv visualisering af trusselsscores baseret på simulerede
+hændelser.
 
-Rollebaseret Adgangskontrol: Definerer klare adgangsniveauer og ansvar for Observatører, Feltoperatører og Administratorer.
+AZRAEL (Emosjonsanalyse): Animeret flow af data gennem systemet.
 
-Etiske Retningslinjer: Indlejret adfærdskodeks og nødprotokol (DEUS Override) for at sikre ansvarlig brug.
+SERAPHIM (Signalanalyse): Definerer klare adgangsniveauer og ansvar for Observatører,
+Feltoperatører og Administratorer.
 
-Interaktive Scenarier: Simulerede træningsscenarier for at demonstrere systemets funktionalitet i praksis.
+SANDALPHONE (Sosial Dynamikk): Indlejret adfærdskodeks og nødprotokol (DEUS Override)
+for at sikre ansvarlig brug.
+
+METATRON Prediktiv Syntese: Simulerede træningsscenarier for at demonstrere systemets
+funktionalitet i praksis.
 
 Teknologier
 Backend: Python 3 med Flask
@@ -40,16 +51,19 @@ En moderne webbrowser
 Trin
 Klon repository'et:
 
-git clone https://github.com/GizzZmo/project-sentinel.git
+git clone <https://github.com/GizzZmo/project-sentinel.git>
 cd project-sentinel
 
 Kør opsætningsscriptet:
-Dette script vil opsætte Python-miljøet for backend'en, installere afhængigheder og starte både backend-serveren og åbne frontend'en i din webbrowser.
+Dette script vil opsætte Python-miljøet for backend'en, installere afhængigheder og starte både
+backend-serveren og åbne frontend'en i din webbrowser.
 
+```bash
 chmod +x scripts/setup_and_run.sh
 ./scripts/setup_and_run.sh
+```
 
-Backend'en vil køre på http://127.0.0.1:5000.
+Backend'en vil køre på <http://127.0.0.1:5000>.
 
 Frontend'en (frontend/index.html) vil åbne automatisk i din standard webbrowser.
 
@@ -64,7 +78,7 @@ pip install -r requirements.txt
 export FLASK_APP=app.py
 flask run --port 5000
 
-Backend'en vil nu køre på http://127.0.0.1:5000.
+Backend'en vil nu køre på <http://127.0.0.1:5000>.
 
 Frontend:
 Åbn frontend/index.html direkte i din webbrowser.
@@ -86,25 +100,41 @@ project-sentinel/
 ├── WIKI.md                   # Wiki-indhold
 └── QNA.md                    # Ofte stillede spørgsmål
 
-Bidrag
+## Bidrag
+
 Vi byder bidrag velkommen! Se venligst CONTRIBUTING.md (hvis den eksisterer) for retningslinjer.
 
-Licens
-Dette projekt er licenseret under MIT-licensen. Se LICENSE (hvis den eksisterer) for mere information.
-# Project Sentinel
+## Licens
 
-Project Sentinel is an advanced, interactive, browser-based security and analysis platform focused on real-time video, audio, and behavioral analytics. Built primarily with HTML, JavaScript, and modern libraries, the platform leverages facial recognition, emotion analysis, device clustering, GPS mapping, and predictive AI to create a persistent database of recognized individuals and actionable security insights.
+Dette projekt er licenseret under MIT-licensen. Se LICENSE (hvis den eksisterer) for mere
+information.
+
+## Project Sentinel - English Version
+
+Project Sentinel is an advanced, interactive, browser-based security and analysis platform
+focused on real-time video, audio, and behavioral analytics. Built primarily with HTML,
+JavaScript, and modern libraries, the platform leverages facial recognition, emotion analysis,
+device clustering, GPS mapping, and predictive AI to create a persistent database of recognized
+individuals and actionable security insights.
 
 ## Features
 
-- **Real-Time Facial Recognition:** Automatically detects, registers, and tracks new faces from live video streams, initially tagging them as "Ukjent" (Unknown).
-- **Identity Management:** Operators can assign permanent names to recognized individuals, which are persisted in a cloud database (Firebase/Firestore).
-- **Emotion & Behavior Analysis:** Utilizes `face-api.js` for emotion detection and provides real-time analytics on individual and group behavior.
-- **AI Protocol Visualization:** Visualizes the operational status of multiple AI "protocols" (modules) for data integrity, emotion, group dynamics, environment, and predictive analytics.
-- **Predictive Risk Analysis (METATRON):** Integrates with Gemini API to generate context-aware, predictive risk assessments based on the current scene.
-- **Audio and Speech-to-Text:** Supports microphone selection and real-time transcription, associating speech with the most central detected individual.
-- **GPS Mapping:** Displays device location on a map using Leaflet.js and simulates clustering analysis of nearby mobile devices.
-- **Modern UI:** Built with Tailwind CSS and Lucide icons for a responsive and visually appealing interface.
+- **Real-Time Facial Recognition:** Automatically detects, registers, and tracks new faces from
+  live video streams, initially tagging them as "Ukjent" (Unknown).
+- **Identity Management:** Operators can assign permanent names to recognized individuals, which
+  are persisted in a cloud database (Firebase/Firestore).
+- **Emotion & Behavior Analysis:** Utilizes `face-api.js` for emotion detection and provides
+  real-time analytics on individual and group behavior.
+- **AI Protocol Visualization:** Visualizes the operational status of multiple AI "protocols"
+  (modules) for data integrity, emotion, group dynamics, environment, and predictive analytics.
+- **Predictive Risk Analysis (METATRON):** Integrates with Gemini API to generate context-aware,
+  predictive risk assessments based on the current scene.
+- **Audio and Speech-to-Text:** Supports microphone selection and real-time transcription,
+  associating speech with the most central detected individual.
+- **GPS Mapping:** Displays device location on a map using Leaflet.js and simulates clustering
+  analysis of nearby mobile devices.
+- **Modern UI:** Built with Tailwind CSS and Lucide icons for a responsive and visually
+  appealing interface.
 
 ## Technologies Used
 
@@ -119,13 +149,16 @@ Project Sentinel is an advanced, interactive, browser-based security and analysi
 ## Getting Started
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/GizzZmo/Sentinel.git
    ```
+
 2. **Open `index.html` in your web browser.**
 3. **Configure Firebase:**  
    Provide your Firebase configuration either in the code or as a global variable.
-4. **(Optional) Add your Gemini API key** in the system control panel for predictive analysis features.
+4. **(Optional) Add your Gemini API key** in the system control panel for predictive analysis
+   features.
 
 ## Usage
 
@@ -137,7 +170,7 @@ Project Sentinel is an advanced, interactive, browser-based security and analysi
 
 ## Screenshots
 
-*(Add screenshots here of the UI in operation)*
+Add screenshots here of the UI in operation
 
 ## License
 

@@ -31,7 +31,7 @@ echo "Åbner frontend i standard webbrowser..."
 # Bemærk: For mere komplekse frontend-projekter med build-processer
 # ville du her starte en lokal webserver (f.eks. 'python3 -m http.server 8000'
 # eller en Node.js-baseret server) og derefter åbne den URL.
-xdg-open frontend/index.html || open frontend/index.html || start frontend/index.html
+xdg-open index.html || open index.html || start index.html
 
 echo "Project Sentinel er startet."
 echo "For at stoppe backend'en, kør 'kill $BACKEND_PID' i din terminal."

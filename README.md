@@ -1,179 +1,202 @@
 # Project Sentinel
 
-## Project Sentinel er et avanceret beslutningsstøttesystem designet til at give sikkerhedspersonale
+Project Sentinel is an advanced, interactive security and threat analysis platform designed to provide security
+personnel with proactive capabilities for identifying and mitigating potential threats in real-time. The system's
+core philosophy is not to replace human judgment, but to enhance it. By analyzing complex data flows from video,
+audio, and other sensors, Sentinel provides operators with deeper situational awareness to make more informed and
+effective decisions.
 
-en proaktiv evne til at identificere og mitigere potentielle trusler i realtid. Systemets
-kernefilosofi er ikke at erstatte menneskelig dømmekraft, men at forstærke den. Ved at analysere
-komplekse dataflows fra video, lyd og andre sensorer, giver Sentinel operatøren en dybere
-situationsforståelse, så de kan træffe mere informerede og effektive beslutninger.
+## 🎯 Overview
 
-Funktioner
+This platform combines real-time facial recognition, emotion analysis, device clustering, GPS mapping, and
+predictive AI to create a comprehensive security analytics solution. It operates as a browser-based application
+with a Python Flask backend providing simulated AI protocol data and risk assessments.
 
-GABRIEL (Integritetsvagt): Specialiserede AI-protokoller arbejder sammen for at skabe et
-holistisk situationsbillede.
+## 🚀 Key Features
 
-RAFAEL (Bevegelsesanalyse): Systemets kerne-AI, der samler data fra alle andre protokoller
-og genererer en samlet risikovurdering og prædiktive analyser.
+### AI Protocol System
 
-URIEL (Miljøanalyse): Interaktiv visualisering af trusselsscores baseret på simulerede
-hændelser.
+- **GABRIEL (Integrity Guard):** Verifies data integrity and quality of incoming feeds
+- **RAFAEL (Movement Analysis):** Monitors and analyzes movement patterns for unusual behavior
+- **URIEL (Environmental Analysis):** Detects environmental anomalies and potential threats
+- **AZRAEL (Emotion Analysis):** Performs deep emotion analysis based on facial expressions
+- **SERAPHIM (Signal Analysis):** Simulates mobile device triangulation for group detection
+- **SANDALPHONE (Social Dynamics):** Evaluates interactions between individuals and groups
+- **METATRON (Predictive Synthesis):** Core AI that generates comprehensive risk assessments
 
-AZRAEL (Emosjonsanalyse): Animeret flow af data gennem systemet.
+### Real-Time Capabilities
 
-SERAPHIM (Signalanalyse): Definerer klare adgangsniveauer og ansvar for Observatører,
-Feltoperatører og Administratorer.
+- **Facial Recognition:** Automatically detects and tracks faces from live video streams
+- **Identity Management:** Persistent database of recognized individuals with naming capabilities
+- **Behavior Analytics:** Real-time analysis of individual and group behavior patterns
+- **Risk Assessment:** Context-aware predictive risk analysis using AI protocols
+- **Audio Processing:** Speech-to-text with speaker association
+- **GPS Mapping:** Device location visualization and clustering analysis
 
-SANDALPHONE (Sosial Dynamikk): Indlejret adfærdskodeks og nødprotokol (DEUS Override)
-for at sikre ansvarlig brug.
+### User Interface
 
-METATRON Prediktiv Syntese: Simulerede træningsscenarier for at demonstrere systemets
-funktionalitet i praksis.
+- **Modern Design:** Built with Tailwind CSS and Lucide icons
+- **Role-Based Access:** Three-tier access system (Observer, Field Operator, Administrator)
+- **Real-Time Dashboards:** Live visualization of all AI protocols and risk metrics
+- **Interactive Controls:** System configuration and emergency override capabilities
 
-Teknologier
-Backend: Python 3 med Flask
+## 🛠️ Technology Stack
 
-Frontend: HTML5, Tailwind CSS, Vanilla JavaScript, Chart.js
+### Backend
 
-Deployment/Automation: GitHub Actions (eksempel)
+- **Python 3.8+** with Flask framework
+- **Flask-CORS** for cross-origin resource sharing
+- RESTful API architecture
 
-API Integration: Simuleret Gemini API-kald for METATRON
+### Frontend
 
-Opsætning og Kørsel
-Følg disse trin for at få Project Sentinel til at køre lokalt på din maskine.
+- **HTML5** with modern JavaScript (ES6+)
+- **[Tailwind CSS](https://tailwindcss.com/)** for styling
+- **[face-api.js](https://github.com/justadudewhohacks/face-api.js)** for facial recognition
+- **[Leaflet.js](https://leafletjs.com/)** for mapping
+- **[Lucide Icons](https://lucide.dev/)** for UI icons
 
-Forudsætninger
-Python 3.8+
+### Optional Integrations
 
-pip (Python pakkehåndtering)
+- **Firebase/Firestore** for data persistence
+- **Google Gemini API** for enhanced AI predictions
 
-En moderne webbrowser
+## 📦 Installation & Setup
 
-Trin
-Klon repository'et:
+### Prerequisites
 
-git clone <https://github.com/GizzZmo/project-sentinel.git>
-cd project-sentinel
+- Python 3.8 or higher
+- pip (Python package manager)
+- Modern web browser (Chrome, Firefox, Safari, Edge)
 
-Kør opsætningsscriptet:
-Dette script vil opsætte Python-miljøet for backend'en, installere afhængigheder og starte både
-backend-serveren og åbne frontend'en i din webbrowser.
-
-```bash
-chmod +x scripts/setup_and_run.sh
-./scripts/setup_and_run.sh
-```
-
-Backend'en vil køre på <http://127.0.0.1:5000>.
-
-Frontend'en (frontend/index.html) vil åbne automatisk i din standard webbrowser.
-
-Manuel Kørsel (alternativ):
-
-Backend:
-
-cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-export FLASK_APP=app.py
-flask run --port 5000
-
-Backend'en vil nu køre på <http://127.0.0.1:5000>.
-
-Frontend:
-Åbn frontend/index.html direkte i din webbrowser.
-
-Projektstruktur
-project-sentinel/
-├── backend/                  # Python Flask backend
-│   ├── app.py                # Hovedapplikation og API-endpoints
-│   └── requirements.txt      # Python afhængigheder
-├── frontend/                 # HTML/CSS/JS frontend
-│   └── index.html            # Enkeltsides webapplikation
-├── .github/                  # GitHub Actions workflows
-│   └── workflows/
-│       └── main.yml          # CI/CD pipeline eksempel
-├── scripts/
-│   └── setup_and_run.sh      # Script til lokal opsætning og kørsel
-├── README.md                 # Dette dokument
-├── HOWTO.md                  # Detaljeret guide
-├── WIKI.md                   # Wiki-indhold
-└── QNA.md                    # Ofte stillede spørgsmål
-
-## Bidrag
-
-Vi byder bidrag velkommen! Se venligst CONTRIBUTING.md (hvis den eksisterer) for retningslinjer.
-
-## Licens
-
-Dette projekt er licenseret under MIT-licensen. Se LICENSE (hvis den eksisterer) for mere
-information.
-
-## Project Sentinel - English Version
-
-Project Sentinel is an advanced, interactive, browser-based security and analysis platform
-focused on real-time video, audio, and behavioral analytics. Built primarily with HTML,
-JavaScript, and modern libraries, the platform leverages facial recognition, emotion analysis,
-device clustering, GPS mapping, and predictive AI to create a persistent database of recognized
-individuals and actionable security insights.
-
-## Features
-
-- **Real-Time Facial Recognition:** Automatically detects, registers, and tracks new faces from
-  live video streams, initially tagging them as "Ukjent" (Unknown).
-- **Identity Management:** Operators can assign permanent names to recognized individuals, which
-  are persisted in a cloud database (Firebase/Firestore).
-- **Emotion & Behavior Analysis:** Utilizes `face-api.js` for emotion detection and provides
-  real-time analytics on individual and group behavior.
-- **AI Protocol Visualization:** Visualizes the operational status of multiple AI "protocols"
-  (modules) for data integrity, emotion, group dynamics, environment, and predictive analytics.
-- **Predictive Risk Analysis (METATRON):** Integrates with Gemini API to generate context-aware,
-  predictive risk assessments based on the current scene.
-- **Audio and Speech-to-Text:** Supports microphone selection and real-time transcription,
-  associating speech with the most central detected individual.
-- **GPS Mapping:** Displays device location on a map using Leaflet.js and simulates clustering
-  analysis of nearby mobile devices.
-- **Modern UI:** Built with Tailwind CSS and Lucide icons for a responsive and visually
-  appealing interface.
-
-## Technologies Used
-
-- HTML, JavaScript (ES6+)
-- [face-api.js](https://github.com/justadudewhohacks/face-api.js) for face detection and recognition
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Leaflet.js](https://leafletjs.com/) for mapping
-- [Lucide Icons](https://lucide.dev/)
-- [Firebase](https://firebase.google.com/) (Authentication & Firestore)
-- Google Gemini API for predictive analytics
-
-## Getting Started
+### Quick Start
 
 1. **Clone the repository:**
 
    ```bash
    git clone https://github.com/GizzZmo/Sentinel.git
+   cd Sentinel
    ```
 
-2. **Open `index.html` in your web browser.**
-3. **Configure Firebase:**  
-   Provide your Firebase configuration either in the code or as a global variable.
-4. **(Optional) Add your Gemini API key** in the system control panel for predictive analysis
-   features.
+2. **Run the setup script:**
 
-## Usage
+   ```bash
+   chmod +x scripts/setup_and_run.sh
+   ./scripts/setup_and_run.sh
+   ```
 
-- Use the left panel for system status, protocol overviews, and device controls.
-- The central area shows live video feeds, detection overlays, and group analysis.
-- The right panel lists recognized individuals and provides analysis logs.
-- Assign names to unknown individuals for permanent recognition.
-- View predictive risk assessments powered by Gemini under the "METATRON" section.
+   This script will:
+   - Set up the Python virtual environment
+   - Install backend dependencies
+   - Start the Flask server on `http://127.0.0.1:5000`
+   - Open the frontend in your default browser
 
-## Screenshots
+### Manual Setup
 
-Add screenshots here of the UI in operation
+If you prefer manual setup:
 
-## License
+1. **Backend setup:**
 
-MIT
+   ```bash
+   cd backend
+   python3 -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   export FLASK_APP=app.py
+   flask run --port 5000
+   ```
+
+2. **Frontend setup:**
+   Simply open `index.html` in your web browser, or serve it through a local web server.
+
+## 📁 Project Structure
+
+```text
+Sentinel/
+├── backend/                    # Python Flask backend
+│   ├── app.py                 # Main application and API endpoints
+│   └── requirements.txt       # Python dependencies
+├── scripts/                   # Automation scripts
+│   └── setup_and_run.sh      # Setup and deployment script
+├── .github/                   # GitHub Actions workflows
+│   └── workflows/
+│       └── main.yml          # CI/CD pipeline
+├── index.html                 # Main frontend application
+├── infografikk.html          # System architecture visualization
+├── README.md                 # This documentation
+├── HowTo.md                  # Detailed setup guide
+├── WIKI.md                   # System philosophy and concepts
+├── Operatørmanual.md         # Operator manual (Norwegian)
+├── example.md                # Example usage scenarios
+├── example_minimal.md        # Minimal setup example
+├── filoversigt.md           # File overview (Danish)
+└── MARKDOWN_LINT.md         # Markdown linting guidelines
+```
+
+## 🎮 Usage
+
+### Getting Started
+
+1. Start the backend server using the setup script or manual installation
+2. Open the frontend in your web browser
+3. The system will load with simulated data and AI protocols active
+
+### Main Interface
+
+- **Left Panel:** System status, protocol overviews, and device controls
+- **Central Area:** Live video feeds, detection overlays, and group analysis
+- **Right Panel:** Recognized individuals list and analysis logs
+
+### Key Operations
+
+- **Monitor Protocols:** Track the status of all AI analysis modules
+- **View Risk Assessments:** Real-time threat level analysis and predictions
+- **Manage Identities:** Name and track recognized individuals
+- **Generate Reports:** Export analysis data and system logs
+
+### Security Features
+
+- **Role-based access control** with three security levels
+- **Emergency override (DEUS Protocol)** for critical situations
+- **Audit logging** of all system actions and decisions
+- **Ethical guidelines** embedded in system operation
+
+## 📊 API Documentation
+
+The backend provides several REST endpoints:
+
+- `GET /api/protocols` - Get all AI protocol information
+- `GET /api/risk_data` - Get current risk event data
+- `POST /api/calculate_risk` - Calculate comprehensive risk assessment
+- `GET /api/pipeline_data` - Get data processing pipeline status
+- `GET /api/scenarios` - Get training scenario data
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our contributing guidelines and ensure your code follows the project standards.
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+- Check the [HowTo.md](HowTo.md) for detailed setup instructions
+- Read the [WIKI.md](WIKI.md) for system concepts and philosophy
+- Review the [Operator Manual](Operatørmanual.md) for operational procedures
+
+## ⚠️ Disclaimer
+
+This is a demonstration platform designed for educational and development purposes. It simulates security analysis
+capabilities and should not be used for actual security operations without proper validation, testing, and
+compliance with applicable laws and regulations.
 
 ---
+
+**Project Sentinel** - Enhancing human judgment through intelligent analysis

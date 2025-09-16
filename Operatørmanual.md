@@ -1,19 +1,32 @@
 # Project Sentinel - Operatørmanual
-# Versjon 3.0
 
-### 1. Systemoversikt og Filosofi
-Formål: Project Sentinel er et avansert beslutningsstøttesystem designet for å gi sikkerhetspersonell en proaktiv evne til å identifisere og mitigere potensielle trusler i sanntid. Systemets kjernefilosofi er ikke å erstatte menneskelig dømmekraft, men å forsterke den. Ved å analysere komplekse dataflyter fra video, lyd og andre sensorer, gir Sentinel operatøren en dypere situasjonsforståelse, slik at de kan ta mer informerte og effektive beslutninger.
+**Versjon 3.0**
 
-Direktiv 7A - Menneskelig Myndiggjøring: All bruk av Project Sentinel skal underlegges Direktiv 7A. Dette innebærer at:
+## 1. Systemoversikt og Filosofi
 
-AI er en rådgiver, ikke en beslutningstaker: Systemet gir prediksjoner, analyser og anbefalinger. Den endelige beslutningen om å handle, og hvordan man skal handle, ligger alltid hos den autoriserte menneskelige operatøren.
+**Formål:** Project Sentinel er et avansert beslutningsstøttesystem designet for å gi
+sikkerhetspersonell en proaktiv evne til å identifisere og mitigere potensielle trusler i
+sanntid. Systemets kjernefilosofi er ikke å erstatte menneskelig dømmekraft, men å forsterke den.
+Ved å analysere komplekse dataflyter fra video, lyd og andre sensorer, gir Sentinel operatøren en
+dypere situasjonsforståelse, slik at de kan ta mer informerte og effektive beslutninger.
 
-Fokus på De-eskalering: Systemets primære mål er å identifisere de tidlige tegnene på uro for å muliggjøre proaktive, de-eskalerende tiltak, og dermed forhindre at voldelige situasjoner oppstår.
+**Direktiv 7A - Menneskelig Myndiggjøring:** All bruk av Project Sentinel skal underlegges
+Direktiv 7A. Dette innebærer at:
 
-Integritet og Transparens: All data og alle systemhandlinger skal loggføres for å sikre full sporbarhet og ansvarlighet.
+**AI er en rådgiver, ikke en beslutningstaker:** Systemet gir prediksjoner, analyser og
+anbefalinger. Den endelige beslutningen om å handle, og hvordan man skal handle, ligger alltid
+hos den autoriserte menneskelige operatøren.
 
-### 2. Protokollforklaringer
-Project Sentinel er bygget på en rekke spesialiserte AI-protokoller som jobber sammen for å bygge et helhetlig situasjonsbilde.
+**Fokus på De-eskalering:** Systemets primære mål er å identifisere de tidlige tegnene på uro for
+å muliggjøre proaktive, de-eskalerende tiltak, og dermed forhindre at voldelige situasjoner oppstår.
+
+**Integritet og Transparens:** All data og alle systemhandlinger skal loggføres for å sikre full
+sporbarhet og ansvarlighet.
+
+## 2. Protokollforklaringer
+
+Project Sentinel er bygget på en rekke spesialiserte AI-protokoller som jobber sammen for å bygge
+et helhetlig situasjonsbilde.
 
 2.1 Protokollbeskrivelser
 GABRIEL (Integritetsvakt): Verifiserer integriteten og kvaliteten på innkommende data. Sikrer at ansiktsgjenkjenning opererer innenfor definerte kvalitetsparametere.
@@ -60,6 +73,7 @@ Plutselig, kaotisk bevegelse (flukt): +3 poeng
 METATRON summerer og vekter disse poengene for å generere en endelig trusselscore og en anbefaling, som presenteres for operatøren.
 
 ### 3. Adferdskodeks og Etiske Retningslinjer
+
 Operatører av Project Sentinel bærer et betydelig ansvar. Følgende retningslinjer er absolutte.
 
 3.1 Kjerneverdier

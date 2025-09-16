@@ -8,28 +8,28 @@ La oss bryte det ned i mindre, mer håndterbare deler.
 
 For å lage et slikt brukergrensesnitt, trenger du i hovedsak fire hovedkomponenter:
 
-1.  **Ansikts- og følelsesgjenkjenning:** Denne delen vil analysere video-input for å identifisere ansiktsuttrykk og trekke ut følelser.
-2.  **Lydbehandling og talegjenkjenning:** Dette omfatter å fange opp lyd fra mikrofoner, transkribere tale til tekst, og visualisere lyden (f.eks. som en lydbølge).
-3.  **Flere kameraer og mikrofoner:** En metode for å håndtere og bytte mellom forskjellige input-enheter.
-4.  **Brukergrensesnitt (UI):** Den visuelle delen som presenterer all denne informasjonen og lar brukeren interagere.
+1. **Ansikts- og følelsesgjenkjenning:** Denne delen vil analysere video-input for å identifisere ansiktsuttrykk og trekke ut følelser.
+2. **Lydbehandling og talegjenkjenning:** Dette omfatter å fange opp lyd fra mikrofoner, transkribere tale til tekst, og visualisere lyden (f.eks. som en lydbølge).
+3. **Flere kameraer og mikrofoner:** En metode for å håndtere og bytte mellom forskjellige input-enheter.
+4. **Brukergrensesnitt (UI):** Den visuelle delen som presenterer all denne informasjonen og lar brukeren interagere.
 
 ### Utviklingstrinn
 
 Du vil sannsynligvis jobbe deg gjennom disse trinnene:
 
-1.  **Velge riktige teknologier:** Det finnes mange biblioteker og rammeverk som kan hjelpe deg med dette.
-2.  **Sette opp kamera- og mikrofon-input:** Håndtere tilkobling og valg av enheter.
-3.  **Implementere ansikts- og følelsesgjenkjenning:** Integrere et bibliotek for dette.
-4.  **Implementere lydvisualisering og talegjenkjenning:** Integrere biblioteker for dette.
-5.  **Bygge brukergrensesnittet:** Sette sammen de visuelle elementene.
-6.  **Koble alt sammen:** Sørge for at de forskjellige delene kommuniserer med hverandre.
+1. **Velge riktige teknologier:** Det finnes mange biblioteker og rammeverk som kan hjelpe deg med dette.
+2. **Sette opp kamera- og mikrofon-input:** Håndtere tilkobling og valg av enheter.
+3. **Implementere ansikts- og følelsesgjenkjenning:** Integrere et bibliotek for dette.
+4. **Implementere lydvisualisering og talegjenkjenning:** Integrere biblioteker for dette.
+5. **Bygge brukergrensesnittet:** Sette sammen de visuelle elementene.
+6. **Koble alt sammen:** Sørge for at de forskjellige delene kommuniserer med hverandre.
 
 ### Forutsetninger og begrensninger
 
-  * **Programmeringsspråk:** Python er et utmerket valg for dette prosjektet på grunn av dets rike økosystem av biblioteker for maskinlæring, bildebehandling og lydbehandling (f.eks. OpenCV, MediaPipe, SpeechRecognition, PyAudio).
-  * **Maskinvare:** Du trenger en datamaskin med tilstrekkelig prosessorkraft, og gjerne et dedikert grafikkort (GPU) for raskere ansiktsgjenkjenning.
-  * **Biblioteker:** Du må installere og konfigurere flere tredjepartsbiblioteker.
-  * **Kompleksitet:** Dette er et stort prosjekt, og hvert trinn kan kreve betydelig læring og feilsøking.
+* **Programmeringsspråk:** Python er et utmerket valg for dette prosjektet på grunn av dets rike økosystem av biblioteker for maskinlæring, bildebehandling og lydbehandling (f.eks. OpenCV, MediaPipe, SpeechRecognition, PyAudio).
+* **Maskinvare:** Du trenger en datamaskin med tilstrekkelig prosessorkraft, og gjerne et dedikert grafikkort (GPU) for raskere ansiktsgjenkjenning.
+* **Biblioteker:** Du må installere og konfigurere flere tredjepartsbiblioteker.
+* **Kompleksitet:** Dette er et stort prosjekt, og hvert trinn kan kreve betydelig læring og feilsøking.
 
 -----
 
@@ -45,11 +45,11 @@ Først må du installere nødvendige biblioteker. Du kan bruke `pip`:
 pip install opencv-python mediapipe SpeechRecognition pyaudio sounddevice numpy
 ```
 
-  * **`opencv-python`**: For kameratilgang og bildebehandling.
-  * **`mediapipe`**: Googles rammeverk for maskinlæringsmodeller, inkludert ansiktsgjenkjenning og ansiktsmorfologi.
-  * **`SpeechRecognition`**: Et bibliotek for talegjenkjenning, som støtter flere motorer.
-  * **`PyAudio`** / **`sounddevice`**: For tilgang til mikrofoner. `sounddevice` er ofte enklere å bruke for å liste enheter.
-  * **`numpy`**: For numeriske operasjoner, spesielt viktig for lydbehandling.
+* **`opencv-python`**: For kameratilgang og bildebehandling.
+* **`mediapipe`**: Googles rammeverk for maskinlæringsmodeller, inkludert ansiktsgjenkjenning og ansiktsmorfologi.
+* **`SpeechRecognition`**: Et bibliotek for talegjenkjenning, som støtter flere motorer.
+* **`PyAudio`** / **`sounddevice`**: For tilgang til mikrofoner. `sounddevice` er ofte enklere å bruke for å liste enheter.
+* **`numpy`**: For numeriske operasjoner, spesielt viktig for lydbehandling.
 
 -----
 
@@ -127,7 +127,7 @@ def run_face_emotion_detection():
 
 **Viktige punkter:**
 
-  * **Følelsesgjenkjenning:** `MediaPipe` gir deg ansiktslandemerker. Selve følelsesgjenkjenningen (f.eks. glede, tristhet, sinne) er en mer avansert oppgave som krever analyse av disse landemerkene, ofte med en trent maskinlæringsmodell. Du kan enten finne ferdige modeller eller trene din egen hvis du har et datasett.
+* **Følelsesgjenkjenning:** `MediaPipe` gir deg ansiktslandemerker. Selve følelsesgjenkjenningen (f.eks. glede, tristhet, sinne) er en mer avansert oppgave som krever analyse av disse landemerkene, ofte med en trent maskinlæringsmodell. Du kan enten finne ferdige modeller eller trene din egen hvis du har et datasett.
 
 -----
 
@@ -253,9 +253,9 @@ def run_audio_features():
 
 **Viktige punkter:**
 
-  * **Valg av mikrofon:** `sounddevice.query_devices()` er nyttig for å liste opp og velge mellom tilgjengelige lyd-input-enheter.
-  * **Talegjenkjenning:** `SpeechRecognition` kan bruke forskjellige API-er (Google Web Speech API, Sphinx, Wit.ai osv.). Google Web Speech API er enkel å bruke for raske prototyper, men har begrensninger på antall forespørsler. For en mer robust løsning, bør du vurdere offline-alternativer som Vosk eller bruke en sky-tjeneste.
-  * **Lydvisualisering:** En enkel konsollvisualisering er vist her. For et grafisk brukergrensesnitt, ville du tegnet bølgeformen på en `canvas` eller et lignende UI-element.
+* **Valg av mikrofon:** `sounddevice.query_devices()` er nyttig for å liste opp og velge mellom tilgjengelige lyd-input-enheter.
+* **Talegjenkjenning:** `SpeechRecognition` kan bruke forskjellige API-er (Google Web Speech API, Sphinx, Wit.ai osv.). Google Web Speech API er enkel å bruke for raske prototyper, men har begrensninger på antall forespørsler. For en mer robust løsning, bør du vurdere offline-alternativer som Vosk eller bruke en sky-tjeneste.
+* **Lydvisualisering:** En enkel konsollvisualisering er vist her. For et grafisk brukergrensesnitt, ville du tegnet bølgeformen på en `canvas` eller et lignende UI-element.
 
 -----
 
@@ -263,9 +263,9 @@ def run_audio_features():
 
 For brukergrensesnittet trenger du et GUI-rammeverk. Anbefalte rammeverk for Python inkluderer:
 
-  * **Tkinter:** Innebygd i Python, enkelt å komme i gang med, men kanskje ikke det mest moderne utseendet.
-  * **PyQt / PySide:** Kraftige, funksjonsrike og gir et profesjonelt utseende, men har en brattere læringskurve.
-  * **Kivy:** Bra for multi-touch applikasjoner og apper som skal kjøre på tvers av plattformer (desktop, mobil).
+* **Tkinter:** Innebygd i Python, enkelt å komme i gang med, men kanskje ikke det mest moderne utseendet.
+* **PyQt / PySide:** Kraftige, funksjonsrike og gir et profesjonelt utseende, men har en brattere læringskurve.
+* **Kivy:** Bra for multi-touch applikasjoner og apper som skal kjøre på tvers av plattformer (desktop, mobil).
 
 Du ville opprette vinduer, knapper for å velge kamera/mikrofon, visningsområder for videostrømmen, og tekstbokser for transkribert tale og følelsesstatus.
 
@@ -565,17 +565,17 @@ if __name__ == "__main__":
 
 ## Hvordan implementere koden
 
-1.  **Lag separate filer:** Det er lurt å organisere koden i separate `.py`-filer for bedre oversikt (f.eks. `emotion_detection.py`, `audio_processing.py`, `ui.py`).
-2.  **Installer avhengigheter:** Sørg for at du har alle nødvendige biblioteker installert ved å kjøre `pip install` kommandoen vist tidligere.
-3.  **Kjøre programmet:** Kjør `ui.py` (eller filen der hoved-UI-koden din er) fra terminalen: `python ui.py`.
-4.  **Feilsøking:** Vær forberedt på å feilsøke. Kamera- og mikrofontilgang kan være tricky på enkelte operativsystemer. Sjekk personverninnstillingene dine.
+1. **Lag separate filer:** Det er lurt å organisere koden i separate `.py`-filer for bedre oversikt (f.eks. `emotion_detection.py`, `audio_processing.py`, `ui.py`).
+2. **Installer avhengigheter:** Sørg for at du har alle nødvendige biblioteker installert ved å kjøre `pip install` kommandoen vist tidligere.
+3. **Kjøre programmet:** Kjør `ui.py` (eller filen der hoved-UI-koden din er) fra terminalen: `python ui.py`.
+4. **Feilsøking:** Vær forberedt på å feilsøke. Kamera- og mikrofontilgang kan være tricky på enkelte operativsystemer. Sjekk personverninnstillingene dine.
 
 ### Viktige hensyn
 
-  * **Multithreading:** For et responsivt GUI må du kjøre tidkrevende operasjoner (videobehandling, lydbehandling, talegjenkjenning) i separate tråder for å unngå at brukergrensesnittet fryser. Eksempelet over bruker `threading`.
-  * **Datakommunikasjon mellom tråder:** Bruk `queue.Queue` (som vist i UI-eksemplet) for å sende data (bilder, transkribert tekst, lydnivåer) fra bakgrunnstrådene til hoved-UI-tråden på en trådsikker måte. Tkinter's `master.after()` er også viktig for å oppdatere UI-elementer fra hovedtråden.
-  * **Robusthet:** Feilhåndtering er kritisk, spesielt når du arbeider med maskinvare (kameraer/mikrofoner) og nettverkstjenester (talegjenkjenning API-er).
-  * **Følelsesgjenkjenning (avansert):** Som nevnt er dette den mest komplekse delen. Du vil trenge en maskinlæringsmodell trent på følelsesuttrykk. Du kan se på biblioteker som `DeepFace`, eller bygge en enklere modell ved å analysere avstander og vinkler mellom `MediaPipe`-landemerker.
+* **Multithreading:** For et responsivt GUI må du kjøre tidkrevende operasjoner (videobehandling, lydbehandling, talegjenkjenning) i separate tråder for å unngå at brukergrensesnittet fryser. Eksempelet over bruker `threading`.
+* **Datakommunikasjon mellom tråder:** Bruk `queue.Queue` (som vist i UI-eksemplet) for å sende data (bilder, transkribert tekst, lydnivåer) fra bakgrunnstrådene til hoved-UI-tråden på en trådsikker måte. Tkinter's `master.after()` er også viktig for å oppdatere UI-elementer fra hovedtråden.
+* **Robusthet:** Feilhåndtering er kritisk, spesielt når du arbeider med maskinvare (kameraer/mikrofoner) og nettverkstjenester (talegjenkjenning API-er).
+* **Følelsesgjenkjenning (avansert):** Som nevnt er dette den mest komplekse delen. Du vil trenge en maskinlæringsmodell trent på følelsesuttrykk. Du kan se på biblioteker som `DeepFace`, eller bygge en enklere modell ved å analysere avstander og vinkler mellom `MediaPipe`-landemerker.
 
 Dette er et spennende og utfordrende prosjekt\! Lykke til med utviklingen\!
 

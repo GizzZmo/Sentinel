@@ -6,11 +6,11 @@ Absolutt\! Når du ønsker å flytte brukergrensesnittet til et **nettleserbaser
 
 For å realisere et audiovisuelt responsivt brukergrensesnitt i en nettleser, må du bruke nettleserens API-er for å få tilgang til kamera og mikrofon, og deretter behandle dataene med JavaScript.
 
-1.  **Frontend (HTML, CSS, JavaScript):**
+1. **Frontend (HTML, CSS, JavaScript):**
       * **HTML:** Struktur for websiden, inkludert `<video>`-elementer for kamerafeed, `<canvas>` for visualisering, og elementer for tekstlogg og kontroller.
       * **CSS:** Styling for å få grensesnittet til å se bra ut.
       * **JavaScript:** Hovedlogikken for å håndtere mediestrømmer, tegne på canvas, og sende/motta data.
-2.  **Backend (Python):** Fordi nettleseren ikke kan kjøre komplekse maskinlæringsmodeller (som følelsesgjenkjenning eller avansert talegjenkjenning) direkte på en effektiv måte, vil vi sende data til en Python-backend.
+2. **Backend (Python):** Fordi nettleseren ikke kan kjøre komplekse maskinlæringsmodeller (som følelsesgjenkjenning eller avansert talegjenkjenning) direkte på en effektiv måte, vil vi sende data til en Python-backend.
       * **Websocket-server:** Brukes til sanntidskommunikasjon mellom frontend (JavaScript) og backend (Python).
       * **Python-logikk:** De samme Python-bibliotekene (OpenCV, MediaPipe, SpeechRecognition) som vi snakket om tidligere, vil kjøre på serveren.
 
@@ -18,20 +18,20 @@ For å realisere et audiovisuelt responsivt brukergrensesnitt i en nettleser, m�
 
 Nettleseren er utmerket for å vise et brukergrensesnitt og håndtere kamera/mikrofon, men:
 
-  * **Intensiv databehandling:** Ansikts- og følelsesgjenkjenning, samt avansert talegjenkjenning, er ofte for ressurskrevende for å kjøre direkte i nettleseren med god ytelse.
-  * **Modelltilgang:** Maskinlæringsmodeller og biblioteker som MediaPipe (for ansiktsnett) og SpeechRecognition er primært designet for Python-miljøer. Selv om det finnes JavaScript-versjoner (f.eks. TensorFlow.js, MediaPipe.js), er de ofte ikke like optimaliserte eller fleksible som Python-versjonene for dype integrasjoner.
-  * **Mikrofonvalg:** Direkte valg av spesifikke mikrofoner er vanskeligere å kontrollere konsistent på tvers av nettlesere og operativsystemer med bare JavaScript.
+* **Intensiv databehandling:** Ansikts- og følelsesgjenkjenning, samt avansert talegjenkjenning, er ofte for ressurskrevende for å kjøre direkte i nettleseren med god ytelse.
+* **Modelltilgang:** Maskinlæringsmodeller og biblioteker som MediaPipe (for ansiktsnett) og SpeechRecognition er primært designet for Python-miljøer. Selv om det finnes JavaScript-versjoner (f.eks. TensorFlow.js, MediaPipe.js), er de ofte ikke like optimaliserte eller fleksible som Python-versjonene for dype integrasjoner.
+* **Mikrofonvalg:** Direkte valg av spesifikke mikrofoner er vanskeligere å kontrollere konsistent på tvers av nettlesere og operativsystemer med bare JavaScript.
 
 ### Utviklingstrinn
 
-1.  **Lag HTML-struktur:** Sett opp grunnleggende elementer for video, canvas, knapper og tekst.
-2.  **Skriv JavaScript for frontend:**
+1. **Lag HTML-struktur:** Sett opp grunnleggende elementer for video, canvas, knapper og tekst.
+2. **Skriv JavaScript for frontend:**
       * Få tilgang til kamera og mikrofon (MediaDevices API).
       * Send videorammer og lyddata til Python-backend via WebSockets.
       * Motta behandlede data (følelser, transkribert tekst, lydvisualisering) fra backend.
       * Tegn på `<canvas>` for visuell respons.
       * Implementer valg av kamera/mikrofon.
-3.  **Skriv Python for backend:**
+3. **Skriv Python for backend:**
       * Sett opp en **Websocket-server** (f.eks. med `websockets` eller `Flask-SocketIO`).
       * Motta videorammer og lyddata fra frontend.
       * Utfør **ansikts- og følelsesgjenkjenning** (med OpenCV/MediaPipe).
@@ -477,37 +477,43 @@ if __name__ == "__main__":
 
 ## Hvordan implementere og kjøre
 
-1.  **Lag filer:** Lag tre filer: `index.html`, `script.js` og `server.py` og lim inn koden i de respektive filene.
-2.  **Installer Python-avhengigheter:**
+1. **Lag filer:** Lag tre filer: `index.html`, `script.js` og `server.py` og lim inn koden i de respektive filene.
+2. **Installer Python-avhengigheter:**
+
     ```bash
     pip install websockets opencv-python mediapipe numpy SpeechRecognition pyaudio
     ```
+
     *Merk: `pyaudio` kan være vanskelig å installere på noen systemer. Sørg for at du har de nødvendige byggeverktøyene.*
-3.  **Start Python-backend:**
+3. **Start Python-backend:**
     Åpne en terminal, naviger til mappen der `server.py` ligger, og kjør:
+
     ```bash
     python server.py
     ```
+
     Du skal se meldingen "WebSocket-server startet på ws://localhost:8765".
-4.  **Åpne HTML-filen:**
+4. **Åpne HTML-filen:**
     Åpne `index.html` i en moderne nettleser (Chrome, Firefox, Edge). **Viktig:** For at `navigator.mediaDevices.getUserMedia()` skal fungere, må filen enten serveres over `https://` eller åpnes fra `localhost` (som når du utvikler). Å bare åpne `file:///path/to/index.html` direkte kan føre til sikkerhetsrestriksjoner.
       * **Enkel måte å serve lokalt:** Du kan bruke Pythons innebygde enkle HTTP-server. Åpne en **ny terminal** (ikke den der `server.py` kjører), naviger til mappen, og kjør:
+
         ```bash
         python -m http.server 8000
         ```
+
         Åpne deretter nettleseren din og gå til `http://localhost:8000/`.
-5.  **Gi tillatelser:** Nettleseren vil be om tillatelse til å få tilgang til kamera og mikrofon. Godta dette.
-6.  **Velg enheter og start:** Velg kamera og mikrofon fra nedtrekksmenyene og trykk "Start Strøm".
+5. **Gi tillatelser:** Nettleseren vil be om tillatelse til å få tilgang til kamera og mikrofon. Godta dette.
+6. **Velg enheter og start:** Velg kamera og mikrofon fra nedtrekksmenyene og trykk "Start Strøm".
 
 ### Viktige hensyn og videre utvikling
 
-  * **Følelsesgjenkjenning i backend:** Den `estimate_emotion`-funksjonen i Python-backend er en *veldig enkel* dummy. For en reell løsning må du integrere en trent maskinlæringsmodell (f.eks. ved å bruke `scikit-learn` med funksjoner fra ansiktslandemerker, eller et dypere læringsbibliotek som `TensorFlow`/`PyTorch` med en ferdig trent modell).
-  * **Talegjenkjenning:** `SpeechRecognition` i Python-backend krever at du sender faktiske, hørbare lydbiter fra frontend. Å bare sende lydvisualiseringsdata er ikke nok. Du må fange opp lydrådata i JavaScript (f.eks. med Web Audio API og `ScriptProcessorNode` eller `AudioWorklet`) og sende dem effektivt til backend i et format SpeechRecognition kan forstå (f.eks. rå PCM-data). Dette er en mer kompleks del.
-  * **Optimalisering for ytelse:** Å sende rå videorammer over WebSockets kan være ineffektivt for høy bildefrekvens. Du kan vurdere:
-      * Sende komprimerte bilder (JPEG/PNG) fra frontend.
-      * Redusere bildeoppløsningen.
-      * Bruke spesialiserte biblioteker for videostrømming over WebSockets.
-  * **Feilhåndtering:** Utvid feilhåndteringen i både JavaScript og Python for å gjøre systemet mer robust.
-  * **Scalability:** For et mer skalerbart system, bør du vurdere en mer robust backend-rammeverk som Flask/Django med SocketIO, eller FastAPI med WebSockets.
+* **Følelsesgjenkjenning i backend:** Den `estimate_emotion`-funksjonen i Python-backend er en *veldig enkel* dummy. For en reell løsning må du integrere en trent maskinlæringsmodell (f.eks. ved å bruke `scikit-learn` med funksjoner fra ansiktslandemerker, eller et dypere læringsbibliotek som `TensorFlow`/`PyTorch` med en ferdig trent modell).
+* **Talegjenkjenning:** `SpeechRecognition` i Python-backend krever at du sender faktiske, hørbare lydbiter fra frontend. Å bare sende lydvisualiseringsdata er ikke nok. Du må fange opp lydrådata i JavaScript (f.eks. med Web Audio API og `ScriptProcessorNode` eller `AudioWorklet`) og sende dem effektivt til backend i et format SpeechRecognition kan forstå (f.eks. rå PCM-data). Dette er en mer kompleks del.
+* **Optimalisering for ytelse:** Å sende rå videorammer over WebSockets kan være ineffektivt for høy bildefrekvens. Du kan vurdere:
+  * Sende komprimerte bilder (JPEG/PNG) fra frontend.
+  * Redusere bildeoppløsningen.
+  * Bruke spesialiserte biblioteker for videostrømming over WebSockets.
+* **Feilhåndtering:** Utvid feilhåndteringen i både JavaScript og Python for å gjøre systemet mer robust.
+* **Scalability:** For et mer skalerbart system, bør du vurdere en mer robust backend-rammeverk som Flask/Django med SocketIO, eller FastAPI med WebSockets.
 
 Dette oppsettet gir deg en solid start på et audiovisuelt responsivt brukergrensesnitt i nettleseren\! Lykke til\!
